@@ -1,0 +1,68 @@
+def wall_detection(hsv):
+    lower = numpy.array([65 ,110, 50],numpy.uint8)
+    upper = numpy.array([90, 255, 255],numpy.uint8)
+    mask = cv2.inRange(hsv,lower, upper)
+    contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    contours=sorted(contours, key = cv2.contourArea, reverse = True)[:3]
+    cv2.fillPoly(mask,contours, (255,255,255))
+    #cv2.imshow('maksed',mask)
+    kernel = numpy.ones((50,40),numpy.uint8)
+    closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    #erosion = cv2.erode(mask,kernel,iterations = 1)
+    dilation = cv2.dilate(closing,kernel,iterations = 1)#obstacle = cv2.dilate(closing,kernel,iterations = 1)
+    cv2.imshow('obstacle',dilation)
+    return dilation
+
+#########################################
+def draw_wall(img):
+
+    contours, hierarchy = cv2.findContours(img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    contours=sorted(contours, key = cv2.contourArea, reverse = True)[:3]
+    cv2.drawContours(frame,contours,-1,(255,0,0),1)
+    #cv2.fillPoly(img,contours,(255,255,255))
+    #cv2.imshow('img',img)
+    #print len(contours)
+    for i in range(len(contours)):
+        #print "Area = ", cv2.contourArea(contours[i])
+        #print "Perimeter = ", cv2.arcLength(contours[i],True)
+        M = cv2.moments(contours[i])
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+        #print "Centroid = ", cx, ", ", cy
+        cv2.circle(frame,(cx,cy), 5, (0,0,0), -1)
+        obstacle_position[i][0]=cx
+        obstacle_position[i][1]=cy
+    #cv2.imshow('obstacle',frame)
+	
+	
+def bot_traverse(route_path,destination,frame):
+    global i
+    global current_path_following
+    if i<=len(route_path)-1:
+        route_x,route_y=gridtopixel (route_path[i].x,route_path[i].y,line_widthm,line_widthn)
+        Bot_x=Bot_position[0][0]
+        Bot_y=Bot_position[0][1]
+        Bot_grid_coord_x=Bot_position[0][0]/line_widthm
+        Bot_grid_coord_y=Bot_position[0][1]/line_widthn
+        grid_start = GridPoint((Bot_position[0][1]/line_widthm),(Bot_position[0][0]/line_widthn)) ##reversing coordinates so that it can be compatible with coordinate system of matrix
+    
+        mbs=getslope(Bot_x,Bot_y,route_x,route_y)
+        mbb=getslope(Bot_x,Bot_y,Bot_position[1][0],Bot_position[1][1])
+        print "mbs>>>",mbs,"<<<<mbb",mbb
+        print "next co",route_x,route_y
+        print "bot",Bot_position[0][0],Bot_position[0][1],Bot_position[1][0],Bot_position[1][1]
+        print Bot_grid_coord_x,Bot_grid_coord_y
+        print i
+        print grid_start.x,grid_start.y
+        cv2.circle(frame,(route_y,route_x),5,(0,255,255),-1)
+        if orientmove(mbs,mbb,Bot_grid_coord_x,Bot_grid_coord_y,route_path[i].x,route_path[i].y)==1:
+            i=i+1               
+    else:
+        if current_path_following<6:
+            current_path_following=current_path_following+1
+            i=0
+        else:
+            ser.write('5')
+            ser.write('7')
+            cv2.waitKey(5000)
+            ser.write('9')
