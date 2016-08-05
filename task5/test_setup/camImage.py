@@ -62,7 +62,7 @@ ret, frame = cap.read()
 ############################################
 ## Show the image
 cv2.imshow('window',frame)
-#cv2.imwrite("test1.jpg",frame)
+cv2.imwrite("test4s.jpg",frame)
 ############################################
 
 ############################################
