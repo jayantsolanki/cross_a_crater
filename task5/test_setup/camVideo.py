@@ -35,7 +35,7 @@
 import numpy
 import cv2
 # Initialize camera
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 ############################################
 
 ############################################
