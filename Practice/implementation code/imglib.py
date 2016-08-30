@@ -72,9 +72,9 @@ def imgclip(frame):
         #points remapped from source image from camera
         #to cropped image try to match x1, y1,.... to the respective near values
         pts1 = numpy.float32([[x1,y1],[x2,y2],[x3,y3],[x4,y4]]) 
-        pts2 = numpy.float32([[0,0],[0,459],[302,0],[302,459]])
+        pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
         persM = cv2.getPerspectiveTransform(pts1,pts2)
-        img = cv2.warpPerspective(frame,persM,(302,459))
+        img = cv2.warpPerspective(frame,persM,(320,480))
         return img
         ###clipping ends
 ############
@@ -87,18 +87,22 @@ def imgclip(frame):
 def obstacle(hsv):
     # lower = numpy.array([65 ,110, 50],numpy.uint8)
     # upper = numpy.array([100, 255, 255],numpy.uint8)
-    lower = numpy.array([0 ,0, 0],numpy.uint8)
-    upper = numpy.array([179, 255, 88],numpy.uint8)
+    lower = numpy.array([22 ,57, 208],numpy.uint8)#obstacle green
+    upper = numpy.array([75, 251, 253],numpy.uint8)
+    # lower = numpy.array([0 ,0, 0],numpy.uint8)
+    # upper = numpy.array([179, 255, 88],numpy.uint8) #different black
+    # lower = numpy.array([0, 0, 0]) #black color mask
+    # upper = numpy.array([120, 120, 120])
     mask = cv2.inRange(hsv,lower, upper)
     contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     
     contours=sorted(contours, key = cv2.contourArea, reverse = True)[:]
-    # contours,length=areacon(contours,2700,1800)
-    # contours=sorted(contours, key = cv2.contourArea, reverse = True)[:length]
+    contours,length=areacon(contours,2500,1500)
+    contours=sorted(contours, key = cv2.contourArea, reverse = True)[:length]
     cv2.fillPoly(mask,contours, (255,255,255))
     # cv2.imshow('maksed',mask)
     #kernel = numpy.ones((50,40),numpy.uint8)
-    kernel = numpy.ones((22,22),numpy.uint8)
+    kernel = numpy.ones((33,33),numpy.uint8)
     closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     #erosion = cv2.erode(mask,kernel,iterations = 1)
     dilation = cv2.dilate(closing,kernel,iterations = 1)#obstacle = cv2.dilate(closing,kernel,iterations = 1)

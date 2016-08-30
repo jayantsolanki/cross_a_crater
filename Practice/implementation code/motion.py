@@ -1,7 +1,7 @@
 import math
 import serial
-# ser=serial.Serial(3) #COM4
-grid_line_x = 20
+ser=serial.Serial(4) #COM4
+grid_line_x = 18
 grid_line_y = 12
 ##########################
 # returning grid coordinate from pixels coordinates
@@ -10,12 +10,6 @@ grid_line_y = 12
 #
 #
 def getcoor(x,y,m,n):
-        '''
-        cx=x/n#(int)(round(x/m))
-        cy=y/n#(int)(round(y/n))
-        return cx,cy
-        '''
-        #img=cv2.imread(filename) ##getting input image
         X=0
         Y=0
         for i in range(0, grid_line_x): ##drawing lines
@@ -23,10 +17,11 @@ def getcoor(x,y,m,n):
                 Y=0
                 for j in range(0, grid_line_y): ##drawing lines
                         Y=Y+n
-                        #print X,Y
+                        # print X,Y,x,y
+                        # print i,j
                         if x<=X and y<=Y:
-                                return i,j
-                                break
+                            return i,j
+                            break
 ##########################
 # converting grid coordinates into pixels
 #
