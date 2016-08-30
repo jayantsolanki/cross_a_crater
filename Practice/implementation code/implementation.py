@@ -20,8 +20,14 @@ MAX = np.array([178, 227, 255])
 
 #########################################
 cap = cv2.VideoCapture(1)
-ret, img = cap.read()
+jay=0
+while(True):
+	jay=jay+1
+	ret, img = cap.read()
+	if jay==200:
+		break
 # img=cv2.imread("demo.jpg")
+
 frame=imgclip(img)
 h,k,l=frame.shape
 m=480/(grid_line_x-1)
@@ -80,7 +86,7 @@ def execute(route_length,route_path):
                 #print "other bot",cx4,cy4
                 if stepper!=route_length:
                         ser.write("9")
-                        X,Y=gridtopixel(route_path[stepper].x,route_path[stepper].y,m,n)#X,Y are pixels of next grid coor
+                        X,Y=gridtopixel(route_path[stepper].x ,route_path[stepper].y,m,n)#X,Y are pixels of next grid coor
                         cv2.circle(img,(Y,X), 5, (255,100,100), -1)
                         #print "hello123"
                         m1= getslope(cx3,cy3,Y,X)
@@ -130,10 +136,91 @@ grid_mapp,obb=markobstacle(obs,frame,grid_line_x,grid_line_y)
 # x,y=gridtopixel(1,2, m,n)
 # print "grid cell to pixels",x,y
 # cv2.circle(frame,(int(x),int(ys)),3,(0,255,0),-11)
-stop=GridPoint(2,2)
-start=GridPoint(14,4)
+##################3
+start=GridPoint(12,6)#base point
+stop=GridPoint(13,2)#A point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+######################
+stop=GridPoint(10,2)#dispatch point
+start=GridPoint(13,2)#A point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+###############
+start=GridPoint(10,2)#Dispatch point
+stop=GridPoint(2,2)#destiation hole
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+start=GridPoint(2,2)#return
+stop=GridPoint(10,2)
 length,route=solve(start,stop,frame)
 execute(length,route)
+#############
+start=GridPoint(10,2)#base point
+stop=GridPoint(15,2)#B point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+###################3
+stop=GridPoint(10,2)#dispatch point
+start=GridPoint(15,2)#B point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+######################
+start=GridPoint(10,2)#Dispatch point
+stop=GridPoint(3,2)#destination hole
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+start=GridPoint(3,2)#return
+stop=GridPoint(10,2)
+length,route=solve(start,stop,frame)
+execute(length,route)
+################
+start=GridPoint(10,2)#base point
+stop=GridPoint(15,9)#C point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+###################3
+stop=GridPoint(10,2)#dispatch point
+start=GridPoint(15,9)#C point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+###############
+start=GridPoint(10,2)#Dispatch point
+stop=GridPoint(4,2)#destination hole
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+start=GridPoint(4,2)#return
+stop=GridPoint(10,2)
+length,route=solve(start,stop,frame)
+execute(length,route)
+###################
+start=GridPoint(10,2)#base point
+stop=GridPoint(13,9)#D point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+###################3
+stop=GridPoint(10,2)#dispatch point
+start=GridPoint(13,9)#D point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+####################
+start=GridPoint(10,2)#Dispatch point
+stop=GridPoint(5,2)#destination hole
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+start=GridPoint(5,2)#return
+stop=GridPoint(10,2)
+length,route=solve(start,stop,frame)
+execute(length,route)
+##################
+start=GridPoint(10,2)#dispatch point
+stop=GridPoint(12,6)#Base point
+length,route=solve(start,stop,frame)
+execute(length,route)#starts navigation
+ser.write("7");
+
+#ser.write("A")
+# execute(length,route)
 cv2.imshow("grid",frame)
 #cv2.imshow("res",img)
 cv2.waitKey()

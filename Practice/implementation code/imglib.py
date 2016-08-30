@@ -173,7 +173,8 @@ def solve(start,finish,img): #no heuristics used
     g = {} # shortest path to a current node
     
     g[start] = 0 #initial distance to node start is 0
-    
+    M=start.x
+    N=start.y
     link[start] = None #parent of start node is none
     
     
@@ -198,17 +199,21 @@ def solve(start,finish,img): #no heuristics used
         
         moves = current.get_moves()
         cost = g[current]
+        # print cost
         for mv in moves:
             #print mv.x,mv.y
+            distance=numpy.sqrt((M-mv.x)*(M-mv.x)+(N-mv.y)*(N-mv.y))
+            #print distance
+            cost=distance
             if grid_map[mv.x][mv.y]==1: #bypass obstacles
                 continue
                 #mv is the neighbour of current cell, in all maximum 4 neighbours will be there
-            if  (mv not in g or g[mv] > cost + 1): #check if mv is already visited or if its cost is higher than available cost then update it
-                g[mv] = cost + 1
+            if  (mv not in g or g[mv] >cost): #check if mv is already visited or if its cost is higher than available cost then update it
+                g[mv] = cost
                 
                 link[mv] = current #storing current node as parent to mv 
                 heapq.heappush(heap, (g[mv], mv)) ##adding updated cost and visited node to heap
-                #cv2.circle(orig_img,(mv.y*n+n/2,mv.x*m+m/2), 5, (255,144,0), -1)
+                # cv2.circle(img,(mv.y*n+n/2,mv.x*m+m/2), 5, (255,144,0), -1)
 
 ###########################################################   
 def build_path(start, finish, parent):
@@ -253,7 +258,7 @@ class GridPoint(object):
             if self.y - 1>=-1:
                 yield GridPoint(self.x, self.y - 1)
                 #############################
-            '''   
+              
             if self.x + 1<len(grid_map) and self.y + 1<len(grid_map):
                 yield GridPoint(self.x + 1, self.y+1)
             if self.y + 1<len(grid_map) and  self.x - 1>-1:  
@@ -262,7 +267,7 @@ class GridPoint(object):
                 yield GridPoint(self.x - 1, self.y-1)
             if self.y - 1>-1 and self.x + 1<len(grid_map):
                 yield GridPoint(self.x+1, self.y - 1)
-            '''   
+             
         
 
             

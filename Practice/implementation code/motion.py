@@ -76,6 +76,7 @@ def orientmove(mbs,mbb,ax,ay,bx,by,d1,d2):
                 
                 if mbs*mbb!=-1 :
                         theta=math.atan((mbs-mbb)/(1+mbs*mbb))
+                        ser.write("G")  #speed slow
                         #print theta
                         if d2>d1:
                                  if theta<20:
@@ -85,8 +86,10 @@ def orientmove(mbs,mbb,ax,ay,bx,by,d1,d2):
                         elif (theta<-0.15 or theta>0.15):
                                 #com=1
                                 if theta<-0.15:
+                                       ser.write("S")  #speed slow
                                        ser.write("6")  #right turn
                                 else:
+                                       ser.write("S")  #speed slow
                                        ser.write("4")   #left turn
                                 #com = raw_input()
                                 

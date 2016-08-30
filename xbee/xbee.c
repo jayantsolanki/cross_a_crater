@@ -391,7 +391,10 @@ void buzzer_on(int time_in_milli)
 		_delay_ms(1);
 	buzzer_off();
 }
-
+void buzzer_ON()
+{
+	PORTC |= 0x08;
+}
 
 void motion_pin_config()
 {
@@ -564,48 +567,71 @@ SIGNAL(SIG_USART0_RECV) 		// ISR for receive complete interrupt
 
 	UDR0 = data; 				//echo data back to PC
 
-		if(data == 0x38) //ASCII value of 8
+		if(data == 0x38 && flag==0) //ASCII value of 8
 		{
 			PORTA=0x06;  //forward
 		}
 
-		if(data == 0x32) //ASCII value of 2
+		if(data == 0x32 && flag==0) //ASCII value of 2
 		{
 			PORTA=0x09; //back
 		}
 
-		if(data == 0x34) //ASCII value of 4
+		if(data == 0x34 && flag==0) //ASCII value of 4
 		{
 			PORTA=0x05;  //left
 		}
 
-		if(data == 0x36) //ASCII value of 6
+		if(data == 0x36 && flag==0) //ASCII value of 6
 		{
 			PORTA=0x0A; //right
 		}
 
-		if(data == 0x35) //ASCII value of 5
+		if(data == 0x35 && flag==0) //ASCII value of 5
 		{
 			PORTA=0x00; //stop
 		}
 
-		if(data == 0x37) //ASCII value of 7
+		if(data == 0x37 && flag==0) //ASCII value of 7
 		{
-			buzzer_on(1000);
+			buzzer_on(5000);
 		}
 
-		if(data == 0x39) //ASCII value of 9
+		if(data == 0x39 && flag==0) //ASCII value of 9
 		{
 			buzzer_off();
 		}
-		if(data == 0x41) //ASCII value of A to hand he control back
+		if(data == 0x41 && flag==0) //ASCII value of A to hand he control back
 		{
 			flag=1;
 		}
-		if(data == 0x44) //ASCII value to to drop the cone, D
+		if(data == 0x44 && flag==0) //ASCII value to to drop the cone, D
 		{
 			drop_cone();
 		}
+		// if(data == 0x4C && flag==0) //ASCII value slow left
+		// {
+		// 	rot_left();
+		// 	velocity(150,150);
+		// }
+		// if(data == 0x52 && flag==0) //ASCII value slow right, R
+		// {
+		// 	rot_right();
+		// 	velocity(150,150);
+		// }
+		if(data == 0x53 && flag==0) //ASCII value slow , S
+		{
+			velocity(150,150);
+		}
+		if(data == 0x46 && flag==0) //ASCII value F fast
+		{
+			velocity(200,200);
+		}
+		if(data == 0x47 && flag==0) //ASCII value superfast
+		{
+			velocity(255,255);
+		}
+		
 
 }
 
@@ -671,7 +697,7 @@ int main(void)
 		}
 	}		
 	action_space[action_counter]=7;
-		
+		flag=0;
 	while(1);
 	//display_actions(actionlist);
 	
@@ -723,7 +749,7 @@ void display_actions(int actionlist[])
 			pick_up_cone();
 			actionlist[i+1]=actionlist[i];
 		}
-		else if(actionlist[i+1]==6)
+		else if(actionlist[i+1]==6)//for handling control back to bot
 		{
 			//printf("stopped\n");
 			stop();
@@ -733,8 +759,10 @@ void display_actions(int actionlist[])
 			lcd_string("handling control to pc");
 			_delay_ms(2000);
 			flag=0;
+			buzzer_ON();
 			while(flag==0);
 			//drop_cone();
+			buzzer_off();
 			actionlist[i+1]=actionlist[i];
 		}
 		else
