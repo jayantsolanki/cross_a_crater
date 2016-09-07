@@ -242,9 +242,9 @@ void pick_up_cone()
 	servo_1(130);
 	_delay_ms(600);
 	
-	servo_2(5);
+	servo_2(0);
 	_delay_ms(600);
-	servo_1(70);
+	servo_1(90);
 	_delay_ms(300);
 }
 
@@ -561,6 +561,14 @@ void uart0_init(void)
 }
 
 
+void transmitByte(uint8_t data) {
+                                     /* Wait for empty transmit buffer */
+  loop_until_bit_is_set(UCSR0A, UDRE0);
+  UDR0 = data;                                            /* send data */
+}
+
+
+
 SIGNAL(SIG_USART0_RECV) 		// ISR for receive complete interrupt
 {
 	data = UDR0; 				//making copy of data from UDR0 in 'data' variable 
@@ -607,7 +615,9 @@ SIGNAL(SIG_USART0_RECV) 		// ISR for receive complete interrupt
 		}
 		if(data == 0x44 && flag==0) //ASCII value to to drop the cone, D
 		{
+			buzzer_ON();
 			drop_cone();
+			buzzer_off();
 		}
 		// if(data == 0x4C && flag==0) //ASCII value slow left
 		// {
@@ -697,9 +707,9 @@ int main(void)
 		}
 	}		
 	action_space[action_counter]=7;
-		flag=0;
-	while(1);
-	//display_actions(actionlist);
+	//	flag=0;
+	//while(1);
+	display_actions(actionlist);
 	
 }
 
@@ -746,7 +756,9 @@ void display_actions(int actionlist[])
 			//printf("***PICK NUMBER **\n");
 			lcd_wr_command(0x01);
 			lcd_string("picking number");
+			distance_mm('b',80);
 			pick_up_cone();
+			distance_mm('f',80);
 			actionlist[i+1]=actionlist[i];
 		}
 		else if(actionlist[i+1]==6)//for handling control back to bot
@@ -757,7 +769,7 @@ void display_actions(int actionlist[])
 			//printf("***HANDLING CONTROL TO PC **\n");
 			lcd_wr_command(0x01);
 			lcd_string("handling control to pc");
-			_delay_ms(2000);
+			transmitByte('I');
 			flag=0;
 			buzzer_ON();
 			while(flag==0);

@@ -85,10 +85,10 @@ def imgclip(frame):
 #
 ############################################
 def obstacle(hsv):
-    # lower = numpy.array([65 ,110, 50],numpy.uint8)
-    # upper = numpy.array([100, 255, 255],numpy.uint8)
-    lower = numpy.array([22 ,57, 208],numpy.uint8)#obstacle green
-    upper = numpy.array([75, 251, 253],numpy.uint8)
+    lower = numpy.array([53 ,112, 34],numpy.uint8)
+    upper = numpy.array([94, 255, 255],numpy.uint8)
+    # lower = numpy.array([22 ,57, 208],numpy.uint8)#obstacle green
+    # upper = numpy.array([75, 251, 253],numpy.uint8)
     # lower = numpy.array([0 ,0, 0],numpy.uint8)
     # upper = numpy.array([179, 255, 88],numpy.uint8) #different black
     # lower = numpy.array([0, 0, 0]) #black color mask
@@ -97,7 +97,7 @@ def obstacle(hsv):
     contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     
     contours=sorted(contours, key = cv2.contourArea, reverse = True)[:]
-    contours,length=areacon(contours,2500,1500)
+    contours,length=areacon(contours,2500,2000)
     contours=sorted(contours, key = cv2.contourArea, reverse = True)[:length]
     cv2.fillPoly(mask,contours, (255,255,255))
     # cv2.imshow('maksed',mask)
