@@ -19,17 +19,19 @@ def get_perspective_image(frame):
 
 
 cap = cv2.VideoCapture(1)
-ret, src = cap.read()
-cv2.imshow('src', src)
+ret, img_src = cap.read()
+cv2.imwrite("output_image.jpg", img_src)
+#cv2.imshow('dst', img_src)
+while True:
+    ret, src = cap.read()
+    cv2.imshow('src', src)
+    if cv2.waitKey(1) == 27:  ## 27 - ASCII for escape key
+        break
 cv2.imwrite("input_image.jpg", src)
 
 ##getting the perspective image
-img_src= get_perspective_image(src)
-
-cv2.imwrite("output_image.jpg", img_src)
-
-cv2.imshow('dst', img_src)
-cv2.waitKey(0)
+#img_src= get_perspective_image(src)
+#cv2.waitKey(0)
 
 ## Close and exit
 cap.release()

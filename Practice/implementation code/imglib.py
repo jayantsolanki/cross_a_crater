@@ -72,9 +72,9 @@ def imgclip(frame):
         #points remapped from source image from camera
         #to cropped image try to match x1, y1,.... to the respective near values
         pts1 = numpy.float32([[x1,y1],[x2,y2],[x3,y3],[x4,y4]]) 
-        pts2 = numpy.float32([[0,0],[0,459],[302,0],[302,459]])
+        pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
         persM = cv2.getPerspectiveTransform(pts1,pts2)
-        img = cv2.warpPerspective(frame,persM,(302,459))
+        img = cv2.warpPerspective(frame,persM,(320,480))
         return img
         ###clipping ends
 ############
@@ -85,20 +85,24 @@ def imgclip(frame):
 #
 ############################################
 def obstacle(hsv):
-    # lower = numpy.array([65 ,110, 50],numpy.uint8)
-    # upper = numpy.array([100, 255, 255],numpy.uint8)
-    lower = numpy.array([0 ,0, 0],numpy.uint8)
-    upper = numpy.array([179, 255, 88],numpy.uint8)
+    lower = numpy.array([53 ,112, 34],numpy.uint8)
+    upper = numpy.array([94, 255, 255],numpy.uint8)
+    # lower = numpy.array([22 ,57, 208],numpy.uint8)#obstacle green
+    # upper = numpy.array([75, 251, 253],numpy.uint8)
+    # lower = numpy.array([0 ,0, 0],numpy.uint8)
+    # upper = numpy.array([179, 255, 88],numpy.uint8) #different black
+    # lower = numpy.array([0, 0, 0]) #black color mask
+    # upper = numpy.array([120, 120, 120])
     mask = cv2.inRange(hsv,lower, upper)
     contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     
     contours=sorted(contours, key = cv2.contourArea, reverse = True)[:]
-    # contours,length=areacon(contours,2700,1800)
-    # contours=sorted(contours, key = cv2.contourArea, reverse = True)[:length]
+    contours,length=areacon(contours,2500,2000)
+    contours=sorted(contours, key = cv2.contourArea, reverse = True)[:length]
     cv2.fillPoly(mask,contours, (255,255,255))
     # cv2.imshow('maksed',mask)
     #kernel = numpy.ones((50,40),numpy.uint8)
-    kernel = numpy.ones((22,22),numpy.uint8)
+    kernel = numpy.ones((33,33),numpy.uint8)
     closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     #erosion = cv2.erode(mask,kernel,iterations = 1)
     dilation = cv2.dilate(closing,kernel,iterations = 1)#obstacle = cv2.dilate(closing,kernel,iterations = 1)
@@ -169,7 +173,8 @@ def solve(start,finish,img): #no heuristics used
     g = {} # shortest path to a current node
     
     g[start] = 0 #initial distance to node start is 0
-    
+    M=start.x
+    N=start.y
     link[start] = None #parent of start node is none
     
     
@@ -194,17 +199,21 @@ def solve(start,finish,img): #no heuristics used
         
         moves = current.get_moves()
         cost = g[current]
+        # print cost
         for mv in moves:
             #print mv.x,mv.y
+            distance=numpy.sqrt((M-mv.x)*(M-mv.x)+(N-mv.y)*(N-mv.y))
+            #print distance
+            cost=distance
             if grid_map[mv.x][mv.y]==1: #bypass obstacles
                 continue
                 #mv is the neighbour of current cell, in all maximum 4 neighbours will be there
-            if  (mv not in g or g[mv] > cost + 1): #check if mv is already visited or if its cost is higher than available cost then update it
-                g[mv] = cost + 1
+            if  (mv not in g or g[mv] >cost): #check if mv is already visited or if its cost is higher than available cost then update it
+                g[mv] = cost
                 
                 link[mv] = current #storing current node as parent to mv 
                 heapq.heappush(heap, (g[mv], mv)) ##adding updated cost and visited node to heap
-                #cv2.circle(orig_img,(mv.y*n+n/2,mv.x*m+m/2), 5, (255,144,0), -1)
+                # cv2.circle(img,(mv.y*n+n/2,mv.x*m+m/2), 5, (255,144,0), -1)
 
 ###########################################################   
 def build_path(start, finish, parent):
@@ -249,7 +258,7 @@ class GridPoint(object):
             if self.y - 1>=-1:
                 yield GridPoint(self.x, self.y - 1)
                 #############################
-            '''   
+              
             if self.x + 1<len(grid_map) and self.y + 1<len(grid_map):
                 yield GridPoint(self.x + 1, self.y+1)
             if self.y + 1<len(grid_map) and  self.x - 1>-1:  
@@ -258,7 +267,7 @@ class GridPoint(object):
                 yield GridPoint(self.x - 1, self.y-1)
             if self.y - 1>-1 and self.x + 1<len(grid_map):
                 yield GridPoint(self.x+1, self.y - 1)
-            '''   
+             
         
 
             

@@ -1,0 +1,850 @@
+/*
+ * cc_final.c
+ *
+ * Created: 8/29/2016 5:53:16 PM
+ *  Author: VamsHiiii
+ */ 
+#define F_CPU 14745600
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include "lcd.h"
+
+
+
+void findactionspace();
+void move(int from, int to);
+void display_actions(int actionlist[]);
+
+int cur_node,next_node,node1,node2,node3,node4;
+
+int action_counter=0;
+int action_space[100]={};
+int dispatch_point=10;
+int base_station=8;
+int store;
+int temp_switch=0;
+int *actionlist;
+
+
+void adc_pin_config()
+{
+	DDRF = 0x00;
+	DDRK = 0x00;
+}
+
+void adc_init()
+{
+	ADCSRA = 0x86;
+	ADCSRB = 0x00;
+	ADMUX = 0x20;
+	ACSR = 0x80;
+}
+
+void velocity(unsigned char left_vel, unsigned char right_vel)
+{
+	OCR5AL = left_vel;
+	OCR5BL = right_vel;
+}
+
+unsigned char adc_convert(unsigned char channel)
+{
+	if(channel > 7)
+	{
+		ADCSRB |= 0x08;
+	}
+	ADMUX |= (channel&7);
+	ADCSRA |= 0x40;
+	while((ADCSRA & 0x10) == 0);
+	unsigned char a = ADCH;
+	adc_init();
+	return a;
+}
+
+void servo1_pin_config (void)
+{
+ DDRB  = DDRB | 0x20;  
+ PORTB = PORTB | 0x20; 
+}
+
+
+void servo2_pin_config (void)
+{
+ DDRB  = DDRB | 0x40;  
+ PORTB = PORTB | 0x40; 
+}
+
+void timer1_init(void)
+{
+	TCCR1B = 0x00; 
+	TCNT1H = 0xFC; 
+	TCNT1L = 0x01;	
+	OCR1AH = 0x03;	
+	OCR1AL = 0xFF;	
+	OCR1BH = 0x03;	
+	OCR1BL = 0xFF;	
+	OCR1CH = 0x03;
+	OCR1CL = 0xFF;	
+	ICR1H  = 0x03;	
+	ICR1L  = 0xFF;
+	TCCR1A = 0xAB; 
+	TCCR1C = 0x00;
+	TCCR1B = 0x0C; 
+}
+
+void servo_init()
+{
+	servo1_pin_config();
+	servo2_pin_config();
+	timer1_init();
+}
+
+
+void servo_1(unsigned char degrees)  
+{
+	float PositionPanServo = 0;
+	PositionPanServo = ((float)degrees / 1.86) + 35.0;
+	OCR1AH = 0x00;
+	OCR1AL = (unsigned char) PositionPanServo;
+}
+
+
+void servo_2(unsigned char degrees)
+{
+	float PositionTiltServo = 0;
+	PositionTiltServo = ((float)degrees / 1.86) + 35.0;
+	OCR1BH = 0x00;
+	OCR1BL = (unsigned char) PositionTiltServo;
+}
+
+void pick_up_cone()
+{
+	
+	servo_2(40);
+	_delay_ms(600);
+	
+	servo_1(130);
+	_delay_ms(600);
+	
+	servo_2(5);
+	_delay_ms(600);
+	servo_1(70);
+	_delay_ms(300);
+}
+
+void drop_cone()
+{
+	servo_1(130);
+	_delay_ms(500);
+	servo_2(40);
+	_delay_ms(600);
+	
+	servo_2(0);
+	_delay_ms(600);
+	
+	servo_1(60);
+	_delay_ms(1000);
+}
+
+void tat()
+{
+	forward();
+	velocity(230,230);
+	_delay_ms(250);
+	stop();
+}
+
+unsigned long int ShaftCountLeft = 0;
+unsigned long int ShaftCountRight = 0;
+unsigned int Degrees;
+
+
+void encoder_pin_config()
+{	
+	DDRE &= 0xcf;
+	PORTE |= 0x30;
+}
+
+void interrupt_init()
+{
+	cli();
+	EIMSK |= 0x30;
+	EICRA = 0x00;
+	EICRB |= 0x0a;
+	sei();
+}
+
+ISR(INT4_vect)
+{
+	ShaftCountLeft++;
+}
+ISR(INT5_vect)
+{
+	ShaftCountRight++;
+}
+
+void angle_rotate(char dir, unsigned int degrees)
+{
+	float ReqdShaftCount = 0;
+	unsigned long int ReqdShaftCountInt = 0;
+
+	ReqdShaftCount = (float) Degrees/4.090;
+	ReqdShaftCountInt = (unsigned int) ReqdShaftCount;
+	ShaftCountRight = 0;
+	ShaftCountLeft = 0;
+
+	if(dir == 'r')
+	{
+		rot_right();
+	}
+	else if(dir == 'l')
+	{
+		rot_left();
+	}
+	while((ShaftCountRight < ReqdShaftCountInt) || (ShaftCountLeft < ReqdShaftCountInt));
+	stop();
+}
+
+void distance_mm(char dir, unsigned int distance)
+{
+	float ReqdShaftCount = 0;
+	unsigned long int ReqdShaftCountInt = 0;
+
+	ReqdShaftCount = (float) distance/5.338;
+	ReqdShaftCountInt = (unsigned int) ReqdShaftCount;
+	ShaftCountRight = 0;
+	ShaftCountLeft = 0;
+
+	if(dir == 'f')
+	{
+		forward();
+	}
+	else if(dir == 'b')
+	{
+		backward();
+	}
+	while((ShaftCountRight < ReqdShaftCountInt) || (ShaftCountLeft < ReqdShaftCountInt));
+	stop();
+}
+
+void init_devices()
+{
+	buzzer_pin_config();
+	motion_pin_config();
+	lcd_port_config();
+	lcd_init();
+	timer5_init();
+	adc_pin_config();
+	adc_init();
+	servo_init();
+	encoder_pin_config();
+	interrupt_init();
+}		
+
+void print_sensor(char row, char coloumn,unsigned char channel)
+{
+	lcd_print(row, coloumn, adc_convert(channel), 3);
+}
+
+unsigned char l = 0; 
+unsigned char r = 0;
+unsigned char adc_convert(unsigned char);
+unsigned char ADC_Value;
+
+void buzzer_pin_config()
+{
+	DDRC |= 0x08;
+	PORTC &= 0xf7;
+}
+
+void buzzer_off()
+{
+	PORTC &= 0xf7;
+}
+
+void buzzer_on(int time_in_milli)
+{
+	PORTC |= 0x08;
+	while(time_in_milli--)
+		_delay_ms(1);
+	buzzer_off();
+}
+
+
+void motion_pin_config()
+{
+	DDRA |= 0x0f;
+	DDRL |= 0x18;
+	PORTL |= 0x18;
+	PORTA = 0x00;
+}
+
+void motion_set(unsigned char dir)
+{
+	PORTA = (PINA & 0xf0) | dir;
+}
+
+void forward()
+{
+	motion_set(0x06);
+}
+void stop()
+{
+	motion_set(0x00);
+}
+void backward()
+{
+	motion_set(0x09);
+}
+void rot_left()
+{
+	motion_set(0x05);
+}
+void rot_right()
+{
+	motion_set(0x0a);
+}
+void soft_left()
+{
+	motion_set(0x04);
+}
+void soft_right()
+{
+	motion_set(0x02);
+}
+
+
+void timer5_init()
+{
+	TCCR5A = 0xa9;
+	TCCR5B = 0x0b;
+	TCNT5H = 0x00;
+	TCNT5L = 0x00;
+	OCR5AL = 0xff;
+	OCR5BL = 0xff;
+}
+
+
+unsigned char left_wl()
+{
+	return adc_convert(3);
+}
+unsigned char mid_wl()
+{
+	return adc_convert(2);
+}
+unsigned char right_wl()
+{
+	return adc_convert(3);
+}
+
+
+void rotate_right_901()
+{
+	rot_right();
+	velocity(180, 180);
+	_delay_ms(700);
+	while((mid_wl() < 40) && (left_wl() < 40));
+	stop();
+	l = 1;
+	r = 0;
+}
+void rotate_left_901()
+{
+	rot_left();
+	velocity(180, 180);
+	_delay_ms(700);
+	while((mid_wl() < 40) && (right_wl() < 40));
+	stop();
+	r = 1;
+	l = 0;
+}
+
+void rotate_right_90()
+{  rot_right();
+	velocity(240, 240);
+	_delay_ms(300);
+ while(1)
+   {
+	
+	if(mid_wl() < 40)
+    {
+	rot_right();
+	velocity(240, 240);
+	
+	}
+	else if((mid_wl() > 20)|(left_wl()>20))
+	{
+	stop();
+	buzzer_on(100);
+	break;
+	}
+	l = 1;
+	r = 0;
+	}
+}
+void rotate_left_90()
+{	rot_left();
+	velocity(240, 240);
+	_delay_ms(300); 
+while(1)
+   {
+	   
+	if(mid_wl()  <40)
+    {
+	rot_left();
+	velocity(240, 240);
+	}
+    else if((mid_wl()>40))
+	{
+	stop();
+	
+	break;
+	}
+	r = 1;
+	l = 0;
+	}
+}
+
+
+main()
+{
+	int i,loop;
+	cur_node=base_station;
+	actionlist=action_space;	
+	
+	//printf("bridge_node=");
+	//scanf("%d",&dispatch_point);
+	init_devices();
+
+	if(dispatch_point==10)
+	{
+		loop=2;
+		/*printf("node1=");
+		scanf("%d",&node1);
+		printf("node2=");
+		scanf("%d",&node2);*/
+	}
+	else if(dispatch_point==11)
+	{
+		loop=4;
+
+		/*printf("node1=");
+		scanf("%d",&node1);
+		printf("node2=");
+		scanf("%d",&node2);
+		printf("node3=");
+		scanf("%d",&node3);
+		printf("node4=");
+		scanf("%d",&node4);*/
+	}
+
+
+
+
+
+	if(loop==2)
+	{
+		store=fetch_storepoint();
+		next_node=store;
+		findactionspace(cur_node,next_node);
+		store=fetch_storepoint();
+		next_node=store;
+		findactionspace(cur_node,next_node);
+	}
+	else if(loop==4)
+	{
+		for(i=0;i<4;i++)
+		{
+			store=fetch_storepoint();
+			next_node=store;
+			findactionspace(cur_node,next_node);
+		}
+	}		
+	action_space[action_counter]=7;
+	
+	display_actions(actionlist);
+
+}
+int fetch_storepoint()
+{
+	if(temp_switch==0)
+	{
+		temp_switch=1;		
+		return 4;//node1;
+	}
+	else if(temp_switch==1)
+	{
+		temp_switch=2;
+		return 3;//node2;
+	}	
+	else if(temp_switch==2)
+	{
+		temp_switch=3;
+		return 6;//node3;
+	}
+	else if(temp_switch==3)
+	{
+		temp_switch=4;
+		return 1;//node4;
+	}
+}
+
+void display_actions(int actionlist[])
+{
+	int i;
+	//printf("move fwd\n");
+	lcd_wr_command(0x01);
+	lcd_string("move fwd");
+	follow_path();
+	
+	for(i=0; actionlist[i+1] !=7 ;i++)
+	{
+		//printf("actionlist_value=%d\n",actionlist[i]);
+		if(actionlist[i+1]==5)
+		{
+			//printf("stopped\n");
+			stop();
+			
+			//printf("***PICK NUMBER **\n");
+			lcd_wr_command(0x01);
+			lcd_string("picking number");
+			pick_up_cone();
+			actionlist[i+1]=actionlist[i];
+		}
+		else if(actionlist[i+1]==6)
+		{
+			//printf("stopped\n");
+			stop();
+			//printf("***HANDLING CONTROL TO PC **\n");
+			lcd_wr_command(0x01);
+			lcd_string("handling control to pc");
+			_delay_ms(2000);
+			drop_cone();
+			actionlist[i+1]=actionlist[i];
+		}
+		else
+		{
+			if(abs(actionlist[i]-actionlist[i+1]) ==0)
+			{
+			
+				//printf("no change in direction\n");
+				lcd_wr_command(0x01);
+				lcd_string("no change in direction");
+				_delay_ms(1000);
+			
+	
+				//printf("move fwd\n");
+				lcd_wr_command(0x01);
+				lcd_string("move fwd");
+				follow_path();
+			
+
+			}
+
+			else if (abs(actionlist[i]-actionlist[i+1]) ==1)
+			{
+			
+				if(actionlist[i]<actionlist[i+1])
+				{
+					//printf("moving left 90deg\n");
+					lcd_wr_command(0x01);
+					lcd_string("rotate left");
+					rotate_left_901();
+				
+				
+					//printf("move fwd\n");
+					lcd_wr_command(0x01);
+					lcd_string("move fwd");
+					follow_path();
+				
+				}
+				else
+				{
+				
+					//printf("moving right 90 deg\n");
+					lcd_wr_command(0x01);
+					lcd_string("rotate right");
+					rotate_right_901();
+				
+				
+				
+					//printf("move fwd\n");
+					lcd_wr_command(0x01);
+					lcd_string("move fwd");
+					follow_path();
+				
+				}
+
+			}
+			else if (abs(actionlist[i]-actionlist[i+1]) ==2)
+			{
+			
+				//printf("moving left 90deg twice\n");
+				lcd_wr_command(0x01);
+				lcd_string("rotate left");
+				rotate_left_901();
+				lcd_string("rotate left");
+				rotate_left_901();
+			
+			
+			
+				//printf("move fwd\n");
+				lcd_wr_command(0x01);
+				lcd_string("move fwd");
+				follow_path();
+			
+
+			}
+			else if (abs(actionlist[i]-actionlist[i+1]) ==3)
+			{
+				if(actionlist[i]>actionlist[i+1])
+				{
+				
+					//printf("moving left 90deg\n");
+					lcd_wr_command(0x01);
+					lcd_string("rotate left");
+					rotate_left_901();
+				
+				
+					//printf("move fwd\n");
+					lcd_wr_command(0x01);
+					lcd_string("move fwd");
+					follow_path();
+				
+				}
+				else
+				{
+				
+					//printf("moving right 90 deg\n");
+					lcd_wr_command(0x01);
+					lcd_string("rotate right");
+					rotate_right_901();
+				
+				
+				
+					//printf("move fwd\n");
+					lcd_wr_command(0x01);
+					lcd_string("move fwd");
+					follow_path();
+				
+				}
+			}
+		}
+		
+	}
+
+}
+
+void findactionspace()
+{
+	move(cur_node,next_node);
+	
+	cur_node=base_station;
+	next_node=dispatch_point;
+	move(cur_node,next_node);
+		
+	cur_node=dispatch_point;
+	next_node=base_station;
+	move(cur_node,next_node);
+	
+	cur_node=base_station;
+	next_node=store;		
+	
+}
+
+void move(int from, int to)
+{
+	if(from==base_station )
+	{
+		if(to==store)
+		{
+			if(store==4)
+			{
+				action_space[action_counter++]=4;
+				action_space[action_counter++]=3;
+
+				action_space[action_counter++]=5;
+
+				action_space[action_counter++]=1;
+				action_space[action_counter++]=2;
+			
+			}
+			else if(store==6)
+			{
+				action_space[action_counter++]=4;
+				action_space[action_counter++]=1;
+
+				action_space[action_counter++]=5;
+
+				action_space[action_counter++]=3;
+				action_space[action_counter++]=2;
+
+			}
+			else if(store==1)
+			{
+				action_space[action_counter++]=4;
+				action_space[action_counter++]=4;
+				action_space[action_counter++]=3;
+
+				action_space[action_counter++]=5;
+
+				action_space[action_counter++]=1;
+				action_space[action_counter++]=2;
+				action_space[action_counter++]=2;
+
+			}
+			else if(store==3)
+			{
+				action_space[action_counter++]=4;
+				action_space[action_counter++]=4;
+				action_space[action_counter++]=1;
+
+				action_space[action_counter++]=5;
+
+				action_space[action_counter++]=3;
+				action_space[action_counter++]=2;
+				action_space[action_counter++]=2;
+
+			}
+			
+		}
+
+		else if(to==dispatch_point)
+		{
+			if(dispatch_point==10)
+			{
+				action_space[action_counter++]=3;
+				action_space[action_counter++]=2;
+
+				action_space[action_counter++]=6;
+			}
+			if(dispatch_point==11)
+			{
+				action_space[action_counter++]=1;
+				action_space[action_counter++]=2;
+
+				action_space[action_counter++]=6;				
+			}
+		}
+	}
+	if(from==dispatch_point)
+	{
+		if(dispatch_point==10)
+		{
+			action_space[action_counter++]=4;
+			action_space[action_counter++]=1;
+		}
+		
+		else if(dispatch_point==11)
+		{
+			action_space[action_counter++]=4;
+			action_space[action_counter++]=3;
+		}
+
+	}
+
+}
+void follow_path()
+{
+	unsigned char Left_white_line,Center_white_line,Right_white_line;
+	forward();
+	while(1)
+	{
+		Left_white_line = adc_convert(3);	//Getting data of Left WL Sensor
+		Center_white_line = adc_convert(2);	//Getting data of Center WL Sensor
+		Right_white_line = adc_convert(1);	//Getting data of Right WL Sensor
+
+		//flag=0;
+
+		print_sensor(2,1,3);	//Prints value of White Line Sensor1
+		print_sensor(2,5,2);	//Prints Value of White Line Sensor2
+		print_sensor(2,9,1);	//Prints Value of White Line Sensor3
+		
+		
+
+		if(Left_white_line<40 && Center_white_line<40 && Right_white_line<40)  //www
+		{
+			//velocity(100,100);//forward
+			forward();
+		}
+
+		if(Left_white_line<40 && Center_white_line<40 && Right_white_line>40)  //wwb -- left
+		{
+		//	velocity(180,220);//legt turn
+			rot_left();
+			
+		}
+
+	//	if(Left_white_line<40 && Center_white_line>40 && Right_white_line<40)  //wbw -- invalid
+
+		if(Left_white_line<40 && Center_white_line>40 && Right_white_line>40)  //wbb -- more left
+		{
+		//	velocity(175,220);
+			rot_left();
+		}
+
+		if(Left_white_line>40 && Center_white_line<40 && Right_white_line<40)  //bww -- right
+		{
+		//	velocity(120,80);
+			rot_right();
+		}
+
+
+		if(Left_white_line>40 && Center_white_line<40 && Right_white_line>40)	 //bwb -- straight
+		{
+		//	velocity(220,220);
+			forward();
+		}
+
+		if(Left_white_line>40 && Center_white_line>40 && Right_white_line<40)  //bbw -- more right
+		{
+		//	velocity(220,150);
+			rot_right();
+		}
+
+		if(Left_white_line>40 && Center_white_line>40 && Right_white_line>40)  //bbb
+		{
+			stop();
+			_delay_ms(1000);
+			//velocity(200,200);
+			//while(Left_white_line>40 && Center_white_line>40 && Right_white_line>40);
+			distance_mm('f',70);
+			//velocity(0,0);
+			stop();
+			break;
+		}
+
+
+	/*	
+		if(Center_white_line<40)
+		{
+			flag=1;
+			forward();
+			velocity(200,200);
+		}
+
+		if((Left_white_line>40) && (flag==0))
+		{
+			flag=1;
+			forward();
+			velocity(220,180);
+		}
+
+		if((Right_white_line>40) && (flag==0))
+		{
+			flag=1;
+			forward();
+			velocity(180,220);
+		}
+
+		if(Center_white_line>40 && Left_white_line>40 && Right_white_line>40)
+		{
+			stop();
+			velocity(0,0);
+		} */
+	}
+}
+		
+
