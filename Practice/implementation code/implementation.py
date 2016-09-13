@@ -33,6 +33,7 @@ cv2.circle(img,(int(y),int(x)),3,(0,255,0),-11)
 start=GridPoint(1,2)
 stop=GridPoint(10,6)
 length,route=solve(start,stop,img)
+print length, route
 # dilation=obstacle(hsv)#obstacle dilated
 # cv2.imshow("obstacles",dilation)
 cv2.imshow("grid",frame)
