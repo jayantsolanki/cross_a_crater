@@ -25,10 +25,10 @@ B2y=0
 cap = cv2.VideoCapture(1)
 jay=0
 while(True):
-	jay=jay+1
-	ret, img = cap.read()
-	if jay==200:
-		break
+    jay=jay+1
+    ret, img = cap.read()
+    if jay==200:
+        break
 # img=cv2.imread("demo.jpg")
 # rotating image
 frame=imgclip(img)
@@ -71,19 +71,19 @@ def execute(route_length,route_path):
                 cv2.drawContours(img,bcontours,-1,(255,255,0),2)
                 
                 if len(bcontours)!=0:   
-                	M = cv2.moments(bcontours[0])
-	                B1x = int(M['m10']/M['m00'])
-	                B1y = int(M['m01']/M['m00'])
-	                # print cx3,cy3
-	                M = cv2.moments(bcontours[1])
-	                B2x = int(M['m10']/M['m00'])
-	                B2y = int(M['m01']/M['m00'])	
-			cx3=B1x
-			cy3=B1y
-			cx4=B2x
-			cy4=B2y
-			cv2.circle(img,(B1x,B1y), 5, (0,0,255), -1)
-			cv2.circle(img,(B2x,B2y), 5, (0,100,100), -1)
+                    M = cv2.moments(bcontours[0])
+                    B1x = int(M['m10']/M['m00'])
+                    B1y = int(M['m01']/M['m00'])
+                    # print cx3,cy3
+                    M = cv2.moments(bcontours[1])
+                    B2x = int(M['m10']/M['m00'])
+                    B2y = int(M['m01']/M['m00'])    
+            cx3=B1x
+            cy3=B1y
+            cx4=B2x
+            cy4=B2y
+            cv2.circle(img,(B1x,B1y), 5, (0,0,255), -1)
+            cv2.circle(img,(B2x,B2y), 5, (0,100,100), -1)
                 #a,b=gridtopixel(x,y,m,n)
                 #print route_path[stepper].y+1,route_path[stepper].x+1
                 #print y+1,x+1
@@ -146,19 +146,6 @@ dilation, obs=obstacle(hsv)#obstacle dilated
 frame=grid_draw(frame,grid_line_x,grid_line_y)
 grid_mapp,obb=markobstacle(obs,frame,grid_line_x,grid_line_y)
 # print grid_mapp
-<<<<<<< HEAD
-print getcoor(40,80,n,m)
-print gridtopixel(1,2,n,m)
-x,y=gridtopixel(1,2, n,m)
-print "grid cell to pixels",x,y
-cv2.circle(img,(int(y),int(x)),3,(0,255,0),-11)
-start=GridPoint(1,2)
-stop=GridPoint(10,6)
-length,route=solve(start,stop,img)
-print length, route
-# dilation=obstacle(hsv)#obstacle dilated
-# cv2.imshow("obstacles",dilation)
-=======
 # print "pixel to grid ",getcoor(409,249,m,n)
 # print "grid to pixel",gridtopixel(14,8,m,n)
 # x,y=gridtopixel(1,2, m,n)
@@ -196,7 +183,7 @@ print length, route
 # execute(length,route)#starts navigation
 # ######################
 # while(1):
-# 	print ser.read()
+#   print ser.read()
 start=GridPoint(10,2)#Dispatch point
 stop=GridPoint(3,2)#destination hole
 length,route=solve(start,stop,frame)
@@ -253,7 +240,6 @@ execute(length,route)
 
 ser.write("A")#handling the control back to the bot
 # execute(length,route)
->>>>>>> f111aeab9d67104ae986c3957e67477938192540
 cv2.imshow("grid",frame)
 #cv2.imshow("res",img)
 cv2.waitKey()
