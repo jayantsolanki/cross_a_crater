@@ -1,8 +1,9 @@
 import math
 import serial
-ser=serial.Serial(4) #COM4
-grid_line_x = 18
-grid_line_y = 12
+#ser=serial.Serial(4) #COM4, for windows
+ser=serial.Serial('/dev/ttyUSB3') #COM4
+grid_line_x = 24
+grid_line_y = 13
 ##########################
 # returning grid coordinate from pixels coordinates
 #
@@ -76,12 +77,14 @@ def orientmove(mbs,mbb,ax,ay,bx,by,d1,d2):
                 
                 if mbs*mbb!=-1 :
                         theta=math.atan((mbs-mbb)/(1+mbs*mbb))
-                        ser.write("G")  #speed slow
+                        ser.write("S")  #speed slow
                         #print theta
                         if d2>d1:
                                  if theta<20:
+                                       ser.write("S")
                                        ser.write("4")  #right turn
                                  else:
+                                       ser.write("S")
                                        ser.write("6")   #left turn
                         elif (theta<-0.15 or theta>0.15):
                                 #com=1
