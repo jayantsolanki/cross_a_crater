@@ -124,6 +124,10 @@ Commands:
 #include<avr/io.h>
 #include<avr/interrupt.h>
 #include<util/delay.h>
+
+#define vth 150
+#define wlth 40
+
 #include "lcd.h"
 unsigned char data; //to store received data from UDR1
 int flag=1;
@@ -131,6 +135,8 @@ int flag=1;
 void findactionspace();
 void move(int from, int to);
 void display_actions(int actionlist[]);
+
+
 
 int cur_node,next_node,node1,node2,node3,node4;
 
@@ -236,7 +242,7 @@ void servo_2(unsigned char degrees)
 void pick_up_cone()
 {
 	
-	servo_2(40);
+	servo_2(60);
 	_delay_ms(600);
 	
 	servo_1(130);
@@ -250,16 +256,16 @@ void pick_up_cone()
 
 void drop_cone()
 {
-	servo_1(130);
+	servo_1(115);//droping level
 	_delay_ms(500);
-	servo_2(40);
+	servo_2(60);
 	_delay_ms(600);
-	
+	servo_1(90);//returning height
+	_delay_ms(1000);
 	servo_2(0);
 	_delay_ms(600);
 	
-	servo_1(60);
-	_delay_ms(1000);
+	
 }
 
 /*void tat()
@@ -467,38 +473,100 @@ unsigned char right_wl()
 void rotate_right_901()
 {
 	rot_right();
-	velocity(150, 150);
+	velocity(vth, vth);
 	_delay_ms(500);
-	if(mid_wl()<40)
-	{	while(mid_wl()<40);
-		while(mid_wl()>40);
+	if(mid_wl()<wlth)
+	{	
+		if(right_wl()>wlth)
+		{
+			while(mid_wl()<wlth);
+			while(mid_wl()>wlth);
+			while(mid_wl()<wlth);
+			//while(left_wl()<wlth);
 		}
-	else if(mid_wl()>40)
-		while(mid_wl()>40);
-	while((mid_wl() < 40) && (left_wl() < 40));
-	while(mid_wl()<40 && left_wl()>40);
+		else
+		{
+			while(mid_wl()<wlth);
+			//while(left_wl()<wlth);
+
+		}
+	}
+	else if(mid_wl()>wlth)
+	{
+		while(mid_wl()>wlth);
+		while(mid_wl()<wlth);
+		while(left_wl()<wlth);
+	}
+	//while((mid_wl() < wlth) && (left_wl() < wlth));
+	//while(mid_wl()<wlth && left_wl()>wlth);
 	stop();
 	l = 1;
 	r = 0;
+
 }
 void rotate_left_901()
 {
+	
 	rot_left();
-	velocity(150, 150);
+	velocity(vth, vth);
 	_delay_ms(500);
-	if(mid_wl()<40)
-	{	while(mid_wl()<40);
-		while(mid_wl()>40);
+	if(mid_wl()<wlth)
+	{	
+		if(left_wl()>wlth)
+		{
+			while(mid_wl()<wlth);
+			while(mid_wl()>wlth);
+			while(mid_wl()<wlth);
+			//while(right_wl()<wlth);
+		}
+		else
+		{
+			while(mid_wl()<wlth);
+			//while(right_wl()<wlth);
+		}	
+
 	}
-	else if(mid_wl()>40)
-		while(mid_wl()>40);
-	while((mid_wl() < 40) && (left_wl() < 40));
-	while(mid_wl()<40 && left_wl()>40);
+	else if(mid_wl()>wlth)
+	{
+		while(mid_wl()>wlth);
+		while(mid_wl()<wlth);
+		//while(right_wl()<wlth);
+	}
+	//while((mid_wl() < wlth) && (left_wl() < wlth));
+	//while((mid_wl()<wlth) && (left_wl()>wlth);
 	stop();
 	r = 1;
 	l = 0;
+	
 }
 
+void rotate_180()
+{
+	rot_left();
+	velocity(vth, vth);
+	_delay_ms(500);
+	if(mid_wl()<wlth)
+	{	
+		while(mid_wl()<wlth);
+		while(mid_wl()>wlth);
+		
+	}
+	else if(mid_wl()>wlth)
+	{
+		while(mid_wl()>wlth);
+		while(mid_wl()<wlth);
+	}
+	stop();
+}
+
+
+void detect_node()
+{
+	rot_left();
+	velocity(vth, vth);
+	while(!((left_wl()>wlth) && (mid_wl()>wlth) )|| ((mid_wl()>wlth) && (right_wl()>wlth) ) || ((left_wl()>wlth) && (right_wl()>wlth) ) ||((left_wl()>wlth) && (mid_wl()>wlth) && (right_wl()>wlth)));
+	stop();
+}
 void rotate_right_90()
 {  rot_right();
 	velocity(240, 240);
@@ -506,7 +574,7 @@ void rotate_right_90()
  while(1)
    {
 	
-	if(mid_wl() < 40)
+	if(mid_wl() < wlth)
     {
 	rot_right();
 	velocity(240, 240);
@@ -530,12 +598,12 @@ void rotate_left_90()
 	while(1)
 	   {
 		   
-			if(mid_wl()  <40)
+			if(mid_wl()  <wlth)
 		    {
 				rot_left();
 				velocity(240, 240);
 			}
-		    else if((mid_wl()>40))
+		    else if((mid_wl()>wlth))
 			{
 				stop();
 			
@@ -622,16 +690,16 @@ SIGNAL(SIG_USART0_RECV) 		// ISR for receive complete interrupt
 		// if(data == 0x4C && flag==0) //ASCII value slow left
 		// {
 		// 	rot_left();
-		// 	velocity(150,150);
+		// 	velocity(vth,vth);
 		// }
 		// if(data == 0x52 && flag==0) //ASCII value slow right, R
 		// {
 		// 	rot_right();
-		// 	velocity(150,150);
+		// 	velocity(vth,vth);
 		// }
 		if(data == 0x53 && flag==0) //ASCII value slow , S
 		{
-			velocity(150,150);
+			velocity(vth,vth);
 		}
 		if(data == 0x46 && flag==0) //ASCII value F fast
 		{
@@ -665,7 +733,8 @@ int main(void)
 	//printf("bridge_node=");
 	//scanf("%d",&dispatch_point);
 	init_devices();
-
+	servo_1(90);//returning height
+	_delay_ms(1000);//fixing servo1 right
 	if(dispatch_point==10)
 	{
 		loop=2;
@@ -756,6 +825,10 @@ void display_actions(int actionlist[])
 			//printf("***PICK NUMBER **\n");
 			lcd_wr_command(0x01);
 			lcd_string("picking number");
+			//detect node
+			//detect_node();
+
+			//adjustment for arm and picking up of the number
 			distance_mm('b',80);
 			pick_up_cone();
 			distance_mm('f',80);
@@ -837,10 +910,11 @@ void display_actions(int actionlist[])
 				//printf("moving left 90deg twice\n");
 				lcd_wr_command(0x01);
 				lcd_string("rotate left");
-				rotate_left_901();
-				lcd_wr_command(0x01);
-				lcd_string("rotate left");
-				rotate_left_901();
+				// rotate_left_901();
+				// lcd_wr_command(0x01);
+				// lcd_string("rotate left");
+				// rotate_left_901();
+				rotate_180();
 			
 			
 			
@@ -1003,7 +1077,7 @@ void move(int from, int to)
 void follow_path()
 {
 	unsigned char Left_white_line,Center_white_line,Right_white_line;
-	unsigned char th=40;
+	unsigned char th=wlth;
 	forward();
 	while(1)
 	{
@@ -1021,7 +1095,7 @@ void follow_path()
 
 		if(Left_white_line<th && Center_white_line<th && Right_white_line<th)  //www
 		{
-			velocity(150,150);//forward
+			velocity(vth-30,vth-30);//forward
 			forward();
 		}
 
@@ -1029,13 +1103,13 @@ void follow_path()
 		{
 			//velocity(180,220);//legt turn
 			rot_right();
-			velocity(150,150);
+			velocity(vth-30,vth-30);
 			
 		}
 
 		if(Left_white_line<th && Center_white_line>th && Right_white_line<th)  //wbw -- valid
 		{
-			velocity(150,150);//forward
+			velocity(vth-30,vth-30);//forward
 			forward();
 
 		}
@@ -1046,14 +1120,14 @@ void follow_path()
 			//forward();
 			//velocity(120,0);
 			rot_right();
-			velocity(150,150);
+			velocity(vth-30,vth-30);
 		}
 
 		if(Left_white_line>th && Center_white_line<th && Right_white_line<th)  //bww -- right
 		{
 		//	velocity(120,80);
 			rot_left();
-			velocity(150,150);
+			velocity(vth-30,vth-30);
 		}
 
 
@@ -1069,7 +1143,7 @@ void follow_path()
 			//velocity(0,120);
 			//rot_right();
 			rot_left();
-			velocity(150,150);
+			velocity(vth-30,vth-30);
 			
 		}
 
