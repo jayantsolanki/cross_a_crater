@@ -1,11 +1,20 @@
 import numpy
 import cv2
 import heapq
-grid_line_x = 18
-grid_line_y = 12
+grid_line_x = 24
+grid_line_y = 13
 # m=480/(grid_line_x-1)
 # n=540/(grid_line_y-1)
 grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
+a1=0
+b1=0
+a2=0
+b2=0
+a3=0
+b3=0
+a4=0
+b4=0
+clipcount=0
 ###############################
 # trims contours accoding to given area
 #
@@ -35,9 +44,13 @@ def areacon(contours,area,sub):
 #
 #
 def imgclip(frame):
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)#where is gray getting used
+        # lower = numpy.array([0, 0, 0]) #black color mask
+        # upper = numpy.array([120, 120, 120])
+        global a1,a2,a3,a4,b1,b2,b3,b4, clipcount #new change 14 sept
+        clipcount=clipcount+1
         lower = numpy.array([0, 0, 0]) #black color mask
-        upper = numpy.array([120, 120, 120])
+        upper = numpy.array([179, 56, 45])
         mask = cv2.inRange(frame, lower, upper)
 
         ret,thresh1 = cv2.threshold(mask,127,255,cv2.THRESH_BINARY)
@@ -58,20 +71,42 @@ def imgclip(frame):
         approx = cv2.approxPolyDP(contours[biggest],0.05*peri,True)
         #drawing the biggest polyline
         cv2.polylines(frame, [approx], True, (0,255,0), 3)
-        x1 = approx[0][0][0]
-        y1 = approx[0][0][1]
-        x2 = approx[1][0][0]
-        y2 = approx[1][0][1]
-        x3 = approx[3][0][0]
-        y3 = approx[3][0][1]
-        x4 = approx[2][0][0]
-        y4 = approx[2][0][1]
-        #print x1,y1,x2,y2,x3,y3,x4,y4
-        
+        if clipcount<=2 or (a1==0 and b1==0 and a2==0 and b2==0 and a3==0 and b3==0 and a4==0 and b4==0):#new change 14 sept
+
+            x1 = approx[0][0][0]
+            y1 = approx[0][0][1]
+            x2 = approx[1][0][0]
+            y2 = approx[1][0][1]
+            x3 = approx[3][0][0]
+            y3 = approx[3][0][1]
+            x4 = approx[2][0][0]
+            y4 = approx[2][0][1]
+            a1=x1
+            a2=x2
+            a3=x3
+            a4=x4
+            b1=y1
+            b2=y2
+            b3=y3
+            b4=y4
+        # print x1,y1,x2,y2,x3,y3,x4,y4
+        # x1 = 570
+        # y1 = 110
+        # x2 = 69
+        # y2 = 100
+        # x3 = 570
+        # y3 = 390
+        # x4 = 70
+        # y4 = 400
 
         #points remapped from source image from camera
         #to cropped image try to match x1, y1,.... to the respective near values
-        pts1 = numpy.float32([[x1,y1],[x2,y2],[x3,y3],[x4,y4]]) 
+        # A,B,C,D
+        # pts1 = numpy.float32([[x1,y1],[x2,y2],[x3,y3],[x4,y4]]) 
+        # pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
+        # pts1 = numpy.float32([[a1,b1],[a2,b2],[a3,b3],[a4,b4]]) 
+        # pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
+        pts1 = numpy.float32([[a3,b3],[a1,b1],[a4,b4],[a2,b2]]) 
         pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
         persM = cv2.getPerspectiveTransform(pts1,pts2)
         img = cv2.warpPerspective(frame,persM,(320,480))
@@ -177,11 +212,15 @@ def solve(start,finish,img): #no heuristics used
     N=start.y
     link[start] = None #parent of start node is none
     
-    
     heapq.heappush(heap, (0, start))
+    if(len(heap)==0):#added today at 14 sept, 2016
+            print 'No path to follow'
+            return 0,0
     
     while True:
-        
+        if(len(heap)==0):#added today at 14 sept, 2016
+            print 'empty heap'
+            return 0,0
         f, current = heapq.heappop(heap) ##taking current node from heap
         #print current
         if current == finish:

@@ -8,8 +8,8 @@ from time import sleep
 import motion
 from imglib import *
 from motion import *
-grid_line_x = 18
-grid_line_y = 12
+grid_line_x = 24
+grid_line_y = 13
 grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
 stepper=0
 MIN = np.array([152, 79, 88]) #pink color mask, for bot localisation
@@ -22,7 +22,7 @@ B2y=0
 ##################
 
 #########################################
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(4)
 jay=0
 while(True):
     jay=jay+1
@@ -40,8 +40,9 @@ h,k,l=frame.shape
 m=480/(grid_line_x-1)
 n=320/(grid_line_y-1)
 print m,n,h,k
+cv2.imshow("framee",frame)
 #################
-def execute(route_length,route_path):
+def execute(route_length,route_path,Aa,Bb):
         stepper=0 
         while(1):
                 
@@ -66,11 +67,14 @@ def execute(route_length,route_path):
                 #bcontours,length=areacon(bcontours,500,300)
                 #bcontours=sorted(bcontours, key = cv2.contourArea, reverse = True)[:length]
                
-                
+                # Xx,Yy=gridtopixel(6,3,m,n)
+                Xx,Yy=gridtopixel(Aa,Bb,m,n)
+                cv2.circle(img,(Yy,Xx), 5, (255,0,100), -1)
                 #cv2.drawContours(res,contours,-1,(0,255,0),2)
                 cv2.drawContours(img,bcontours,-1,(255,255,0),2)
-                
-                if len(bcontours)!=0:   
+                # cv2.imshow('ori',img)
+                if len(bcontours)>=2: 
+                    # continue  
                     M = cv2.moments(bcontours[0])
                     B1x = int(M['m10']/M['m00'])
                     B1y = int(M['m01']/M['m00'])
@@ -78,12 +82,15 @@ def execute(route_length,route_path):
                     M = cv2.moments(bcontours[1])
                     B2x = int(M['m10']/M['m00'])
                     B2y = int(M['m01']/M['m00'])    
-            cx3=B1x
-            cy3=B1y
-            cx4=B2x
-            cy4=B2y
-            cv2.circle(img,(B1x,B1y), 5, (0,0,255), -1)
-            cv2.circle(img,(B2x,B2y), 5, (0,100,100), -1)
+                else:
+                    ser.write("5")
+                    continue
+                cx3=B1x
+                cy3=B1y
+                cx4=B2x
+                cy4=B2y
+                cv2.circle(img,(B1x,B1y), 5, (0,0,255), -1)
+                cv2.circle(img,(B2x,B2y), 5, (0,100,100), -1)
                 #a,b=gridtopixel(x,y,m,n)
                 #print route_path[stepper].y+1,route_path[stepper].x+1
                 #print y+1,x+1
@@ -124,6 +131,94 @@ def execute(route_length,route_path):
           
                 else:
                         ser.write("5")
+                        # Xx,Yy=gridtopixel(6,3,m,n)
+                        Xx,Yy=gridtopixel(Aa,Bb,m,n)
+                        
+                        # ser.write("G")  #speed slow
+                        while(1 and (Aa!=0 and Bb!=0)):
+                            ret, frame = cap.read()
+                            rows,cols,l = frame.shape
+                            M = cv2.getRotationMatrix2D((cols/2,rows/2),180,1)
+                            frame = cv2.warpAffine(frame,M,(cols,rows))
+                            img=imgclip(frame)
+                            ############ processing starts after clipping
+                            #wap=grid_draw(img,17,17)
+                            #cv2.imshow("show",wap)
+                            hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+                            
+                            bmask = cv2.inRange(hsv, MIN,MAX)
+                            
+                            #bret,bthresh = cv2.threshold(bmask,127,255,1)
+                            #cv2.imshow('binary',mask)
+                            #cv2.imwrite("wall.jpg",mask)
+
+                            bcontours, bh = cv2.findContours(bmask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+                            bcontours=sorted(bcontours, key = cv2.contourArea, reverse = True)[:12] ##bot
+                            #bcontours,length=areacon(bcontours,500,300)
+                            #bcontours=sorted(bcontours, key = cv2.contourArea, reverse = True)[:length]
+                           
+                            
+                            #cv2.drawContours(res,contours,-1,(0,255,0),2)
+                            cv2.drawContours(img,bcontours,-1,(255,255,0),2)
+                            # cv2.imshow('ori',img)
+                            if len(bcontours)>=2: 
+                                # continue  
+                                M = cv2.moments(bcontours[0])
+                                B1x = int(M['m10']/M['m00'])
+                                B1y = int(M['m01']/M['m00'])
+                                # print cx3,cy3
+                                M = cv2.moments(bcontours[1])
+                                B2x = int(M['m10']/M['m00'])
+                                B2y = int(M['m01']/M['m00'])    
+                            else:
+                                ser.write("5")
+                                continue
+                            cx3=B1x
+                            cy3=B1y
+                            cx4=B2x
+                            cy4=B2y
+                            cv2.circle(img,(Yy,Xx), 5, (255,0,100), -1)
+                            cv2.circle(img,(B1x,B1y), 5, (0,0,255), -1)
+                            cv2.circle(img,(B2x,B2y), 5, (0,100,100), -1)
+                            #a,b=gridtopixel(x,y,m,n)
+                            #print route_path[stepper].y+1,route_path[stepper].x+1
+                            #print y+1,x+1
+                            #print getcoor(a,b,m,n)
+                            #cv2.circle(img,(b,a), 5, (211,200,255), -1)
+                            
+                            
+                            # print cx3,cy3
+                            bx,by=getcoor(cy3,cx3,m,n)
+                            m1= getslope(cx3,cy3,Yy,Xx)
+                            m2= getslope(cx3,cy3,cx4,cy4)
+                            d1=dis(cx3,cy3,Yy,Xx)
+                            d2=dis(cx4,cy4,Yy,Xx)
+                            theta=math.atan((m1-m2)/(1+m1*m2))
+                            # print theta
+                            if d2>d1:
+                                 ser.write("5")
+                                 if theta<20:
+                                       ser.write("4")  #right turn
+                                 else:
+                                       ser.write("6")   #left turn
+                            elif (theta<-0.009 or theta>0.009):
+                                #com=1
+
+                                 if theta<-0.009:
+                                       ser.write("S")  #speed slow
+                                       ser.write("6")  #right turn
+                                 else:
+                                       ser.write("S")  #speed slow
+                                       ser.write("4")   #left turn
+                                #com = raw_input()
+                                
+                                #ser.write(com) #send command
+                            else:
+                                ser.write("5")
+                                break
+                            cv2.imshow('ori',img)
+                            if cv2.waitKey(1) == 27:  ## 27 - ASCII for escape key
+                                    break
                         #ser.write("9")
                         break
                                 
@@ -144,7 +239,8 @@ def execute(route_length,route_path):
 hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
 dilation, obs=obstacle(hsv)#obstacle dilated
 frame=grid_draw(frame,grid_line_x,grid_line_y)
-grid_mapp,obb=markobstacle(obs,frame,grid_line_x,grid_line_y)
+# grid_mapp,obb=markobstacle(obs,frame,grid_line_x,grid_line_y)
+# cv2.imshow("grid",frame)
 # print grid_mapp
 # print "pixel to grid ",getcoor(409,249,m,n)
 # print "grid to pixel",gridtopixel(14,8,m,n)
@@ -182,17 +278,34 @@ grid_mapp,obb=markobstacle(obs,frame,grid_line_x,grid_line_y)
 # length,route=solve(start,stop,frame)
 # execute(length,route)#starts navigation
 # ######################
-# while(1):
-#   print ser.read()
-start=GridPoint(10,2)#Dispatch point
-stop=GridPoint(3,2)#destination hole
+start=GridPoint(14,2)#Dispatch point
+stop=GridPoint(17,2)#destination hole
 length,route=solve(start,stop,frame)
-execute(length,route)#starts navigation
+while(1):
+  z=ser.read()
+  if z=='I':
+    break
+execute(length,route,12,2)#starts navigation
 ser.write("D")#drop the mic
-start=GridPoint(3,2)#return
-stop=GridPoint(10,2)
+start=GridPoint(17,2)#return
+stop=GridPoint(14,2)
 length,route=solve(start,stop,frame)
-execute(length,route)
+execute(length,route,0,0)
+ser.write("A")#handling the control back to the bot
+########
+start=GridPoint(14,2)#Dispatch point
+stop=GridPoint(10,2)#destination hole
+length,route=solve(start,stop,frame)
+while(1):
+  z=ser.read()
+  if z=='I':
+    break
+execute(length,route,6,3)#starts navigation
+ser.write("D")#drop the mic
+start=GridPoint(10,2)#return
+stop=GridPoint(14,2)
+length,route=solve(start,stop,frame)
+execute(length,route,0,0)
 # ################
 # start=GridPoint(10,2)#base point
 # stop=GridPoint(15,9)#C point
@@ -240,6 +353,6 @@ execute(length,route)
 
 ser.write("A")#handling the control back to the bot
 # execute(length,route)
-cv2.imshow("grid",frame)
+
 #cv2.imshow("res",img)
 cv2.waitKey()
