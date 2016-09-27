@@ -242,13 +242,13 @@ void servo_2(unsigned char degrees)
 void pick_up_cone()
 {
 	
-	servo_2(60);
+	servo_2(220);
 	_delay_ms(600);
 	
 	servo_1(130);
 	_delay_ms(600);
 	
-	servo_2(0);
+	servo_2(140);
 	_delay_ms(600);
 	servo_1(90);
 	_delay_ms(300);
@@ -258,12 +258,12 @@ void drop_cone()
 {
 	servo_1(115);//droping level
 	_delay_ms(500);
-	servo_2(60);
+	servo_2(220);
 	_delay_ms(600);
 	servo_1(90);//returning height
 	_delay_ms(1000);
-	servo_2(0);
-	_delay_ms(600);
+	//servo_2(120);
+	//_delay_ms(600);
 	
 	
 }
@@ -363,6 +363,7 @@ void init_devices()
 	adc_pin_config();
 	adc_init();
 	servo_init();
+	servo_2(220);             //initialisation of servo2
 	encoder_pin_config();
 	interrupt_init();
 	init_xbee();
@@ -829,9 +830,9 @@ void display_actions(int actionlist[])
 			//detect_node();
 
 			//adjustment for arm and picking up of the number
-			distance_mm('b',80);
+			//distance_mm('b',0);
 			pick_up_cone();
-			distance_mm('f',80);
+			//distance_mm('f',80);
 			actionlist[i+1]=actionlist[i];
 		}
 		else if(actionlist[i+1]==6)//for handling control back to bot
@@ -1087,30 +1088,34 @@ void follow_path()
 
 		//flag=0;
 
-		print_sensor(2,1,3);	//Prints value of White Line Sensor1
-		print_sensor(2,5,2);	//Prints Value of White Line Sensor2
-		print_sensor(2,9,1);	//Prints Value of White Line Sensor3
+		//print_sensor(2,1,3);	//Prints value of White Line Sensor1
+		//print_sensor(2,5,2);	//Prints Value of White Line Sensor2
+		//print_sensor(2,9,1);	//Prints Value of White Line Sensor3
 		
 		
 
 		if(Left_white_line<th && Center_white_line<th && Right_white_line<th)  //www
 		{
-			velocity(vth-30,vth-30);//forward
+			//backward();
 			forward();
+			velocity(vth,vth);//forward
+			//forward();
 		}
 
 		if(Left_white_line<th && Center_white_line<th && Right_white_line>th)  //wwb -- left
 		{
-			//velocity(180,220);//legt turn
+			//velocity(180,220);//left turn
+			stop();
 			rot_right();
-			velocity(vth-30,vth-30);
+			velocity(vth,vth);
 			
 		}
 
 		if(Left_white_line<th && Center_white_line>th && Right_white_line<th)  //wbw -- valid
 		{
-			velocity(vth-30,vth-30);//forward
 			forward();
+			velocity(vth,vth);//forward
+			
 
 		}
 
@@ -1119,15 +1124,17 @@ void follow_path()
 		//	velocity(175,220);
 			//forward();
 			//velocity(120,0);
+			stop();
 			rot_right();
-			velocity(vth-30,vth-30);
+			velocity(vth,vth);
 		}
 
 		if(Left_white_line>th && Center_white_line<th && Right_white_line<th)  //bww -- right
 		{
 		//	velocity(120,80);
+			stop();
 			rot_left();
-			velocity(vth-30,vth-30);
+			velocity(vth,vth);
 		}
 
 
@@ -1142,19 +1149,20 @@ void follow_path()
 			//forward();
 			//velocity(0,120);
 			//rot_right();
+			stop();
 			rot_left();
-			velocity(vth-30,vth-30);
+			velocity(vth,vth-30);
 			
 		}
 
-		if(Left_white_line>th && Center_white_line>th && Right_white_line>th)  //bbb
-		{
+		if((Left_white_line>th && Center_white_line>th && Right_white_line>th) )//|| (Left_white_line>(th+40) && Center_white_line>(th+40) && Right_white_line<th) || (Left_white_line<th && Center_white_line>(th+40) && Right_white_line>(th+40)))  //bbb
+		{							//bbb or highBhighBwhite or whitehighBhighB
 			stop();
 			//_delay_ms(1000);
 			//velocity(200,200);
 			//while(Left_white_line>40 && Center_white_line>40 && Right_white_line>40);
-			distance_mm('f',50);
 			buzzer_on(500);
+			distance_mm('f',40);
 			//velocity(0,0);
 			stop();
 			break;

@@ -5,7 +5,7 @@ def nothing(x):
     pass
 
 # Create a black image, a window
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 # img=cv2.imread("output_image.jpg")
 # rows,cols,l = img.shape
 # M = cv2.getRotationMatrix2D((cols/2,rows/2),90,1)
@@ -27,11 +27,12 @@ cv2.createTrackbar(switch, 'image',0,1,nothing)
 
 while(1):
     ret, img = cap.read()
+
     # rotating image
     # rows,cols,l = img.shape
     # M = cv2.getRotationMatrix2D((cols/2,rows/2),90,1)
     # img = cv2.warpAffine(img,M,(cols,rows))
-    # hsv=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hsv=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     # hsv=cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     k = cv2.waitKey(1) & 0xFF
     if k == 27:
@@ -54,7 +55,7 @@ while(1):
         # img=cv2.inRange(hsv,lower,upper)
         # lower = numpy.array([0, 0, 0]) #black color mask
         # upper = numpy.array([120, 120, 120])
-        img = cv2.inRange(img, lower, upper)
+        img = cv2.inRange(hsv, lower, upper)
         # img=cv2.bitwise_and(img,img,mask=mask)
     cv2.imshow('images',img)
 
