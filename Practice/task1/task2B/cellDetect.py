@@ -5,7 +5,7 @@
 *                  ================================
 *  This software is intended to teach image processing concepts
 *
-*  MODULE: Task1B
+*  MODULE: Task2B
 *  Filename: cellDetect.py
 *  Version: 1.0.0  
 *  Date: October 13, 2016
@@ -34,7 +34,7 @@
 # on the gridImage
 # At the end, output the resultant image as output.jpg and also save it.
 #=============================================================
-#					Task1A begins	
+#					Task2B begins	
 import cv2
 import numpy as np
 # Image size is of 600 by 600 pixels. 
@@ -146,4 +146,4 @@ cv2.imshow('output',img_rgb)
 # Write the image
 cv2.waitKey()
 #=============================================================
-# Your task1B ends here
+# Your Task2B ends here

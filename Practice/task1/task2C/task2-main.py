@@ -5,7 +5,7 @@
 *                  ================================
 *  This software is intended to teach image processing concepts
 *
-*  MODULE: Task1C
+*  MODULE: Task2C
 *  Filename: task2-main.py
 *  Version: 1.0.0  
 *  Date: October 13, 2016
@@ -33,7 +33,6 @@ import sys
 import cv2
 import numpy as np
 from getCellVal import *
-from imglib import *
 # To compile the file, on the console type 
 # python task1-main.py N
 # where N is the total number of images to be read, 7 in your case
@@ -51,18 +50,12 @@ for k in range(1,N_images+1):
 	grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
 	imgpath='task2sets/task2_img_'+str(k)+'.jpg'
 	img_rgb = cv2.imread(imgpath)
-	img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-	grid_map=detectCellVal(img_gray,grid_map)
+	#your code for the number/opeator detection, calculation and returning the resultant grid_map
+	grid_map=detectCellVal(img_rgb,grid_map)
+	#print the grid_map
 	print grid_map
-	# grid_map=solveGrid(grid_map)
-	# print "resultant grid ",grid_map
-	#drawing on the image
-	for i in range(0,6):
-	  x,y=gridtopixel(5,i, m,n)
-	  if grid_map[i][5]/10!=0:
-	    cv2.putText(img_rgb, str(grid_map[i][5]), (x-m/2, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 255), 4)
-	  else:
-	    cv2.putText(img_rgb, str(grid_map[i][5]), (x-m/4, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 255), 4)
+	#print the output of the each expression on the input image, similar to what shown in the output.jpg image
+	#your code here
 
 	cv2.imshow('output',img_rgb)
 	cv2.imwrite('output.jpg',img_rgb)

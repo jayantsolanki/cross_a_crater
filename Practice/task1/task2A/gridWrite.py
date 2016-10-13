@@ -5,7 +5,7 @@
 *                  ================================
 *  This software is intended to teach image processing concepts
 *
-*  MODULE: Task1A
+*  MODULE: Task2A
 *  Filename: gridWrite.py
 *  Version: 1.0.0  
 *  Date: October 13, 2016
@@ -34,7 +34,7 @@
 # on the gridImage
 # At the end, output the resultant image as output.jpg and also save it.
 #=============================================================
-#					Task1A begins	
+#					Task2A begins	
 import cv2
 import numpy as np
 # Image size is of 600 by 600 pixels. 
@@ -60,4 +60,4 @@ cv2.imwrite('output.jpg',img_rgb)
 cv2.waitKey()
 cv2.waitKey()
 #=============================================================
-# Your task1A ends here
+# Your task2A ends here
