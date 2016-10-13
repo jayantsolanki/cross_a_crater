@@ -108,9 +108,9 @@ for im in range(1,21):
 		for j in range(0,5):
 			x,y=gridtopixel(j,i, m,n)
 			if j%2==0:
-				cv2.putText(img, str(random.randrange(0,9)), (x-m/4, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 0), 4)
+				cv2.putText(img, str(random.randrange(0,10)), (x-m/4, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 0), 4)
 			else:
-				if(random.randrange(1,9)%2==0):
+				if(random.randrange(1,10)%2==0):
 					drawMinus(x,y,m,n)
 				else:
 					drawPlus(x,y,m,n)
