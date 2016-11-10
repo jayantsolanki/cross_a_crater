@@ -40,7 +40,7 @@ from getCellVal import *
 # To compile the file, on the console type 
 # python task1-main.py N
 # where N is the total number of images to be read, 7 in your case
-# At the end, show the resultant image and print the resultant grid_map in the console.
+# At the end, you will see the results of the test cases verified.
 #=============================================================
 #					Task1C begins			
 
