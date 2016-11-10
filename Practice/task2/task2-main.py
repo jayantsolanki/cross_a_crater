@@ -42,11 +42,11 @@ from imglib import *
 #					Task2C begins							 
 #User providing the number of images files to be tested
 N_images=int(sys.argv[1])
-grid_line_x = 7
-grid_line_y = 7
-m=600/(grid_line_x-1)
-n=600/(grid_line_y-1)
-# grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
+grid_line_x = 15
+grid_line_y = 15
+m=700/(grid_line_x-1)
+n=700/(grid_line_y-1)
+grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
 for k in range(1,N_images+1):
 	grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
 	imgpath='task2sets/task2_img_'+str(k)+'.jpg'
@@ -54,18 +54,15 @@ for k in range(1,N_images+1):
 	img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
 	grid_map=detectCellVal(img_gray,grid_map)
 	print grid_map
+	start=GridPoint(13,0)#Source 
+	stop=GridPoint(0,1)#destination 
+	length,route,frame=solve(start,stop,img_rgb,grid_map)
+	print " route length", int(length)
+	print " route path", route
 	# grid_map=solveGrid(grid_map)
 	# print "resultant grid ",grid_map
 	#drawing on the image
-	for i in range(0,6):
-	  x,y=gridtopixel(5,i, m,n)
-	  if grid_map[i][5]/10!=0:
-	    cv2.putText(img_rgb, str(grid_map[i][5]), (x-m/2, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 255), 4)
-	  else:
-	    cv2.putText(img_rgb, str(grid_map[i][5]), (x-m/4, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 255), 4)
-
-	cv2.imshow('output',img_rgb)
-	cv2.imwrite('output.jpg',img_rgb)
+	cv2.imshow('output',frame)
 	cv2.waitKey()
 
 #=============================================================

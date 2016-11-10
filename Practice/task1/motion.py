@@ -1,8 +1,8 @@
 import math
 import serial
 #ser=serial.Serial(4) #COM4, for windows
-grid_line_x = 15
-grid_line_y = 15
+grid_line_x = 7
+grid_line_y = 7
 ##########################
 # returning grid coordinate from pixels coordinates
 #

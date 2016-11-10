@@ -5,7 +5,7 @@
 *                  ================================
 *  This software is intended to teach image processing concepts
 *
-*  MODULE: Task2A
+*  MODULE: Task1A
 *  Filename: gridWrite.py
 *  Version: 1.0.0  
 *  Date: October 13, 2016
@@ -34,11 +34,11 @@
 # on the gridImage
 # At the end, output the resultant image as output.jpg and also save it.
 #=============================================================
-#					Task2A begins	
+#					Task1A begins	
 import cv2
 import numpy as np
 # Image size is of 600 by 600 pixels. 
-# Total gridlines are 7 veticals and 7 Horizontals
+# Total gridlines are 7 veticals lines and 7 Horizontals lines
 grid_line_x = 7
 grid_line_y = 7
 m=600/(grid_line_x-1)
@@ -60,4 +60,4 @@ cv2.imwrite('output.jpg',img_rgb)
 cv2.waitKey()
 cv2.waitKey()
 #=============================================================
-# Your task2A ends here
+# Your task1A ends here

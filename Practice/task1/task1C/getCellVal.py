@@ -5,8 +5,8 @@
 *                  ================================
 *  This software is intended to teach image processing concepts
 *
-*  MODULE: Task2C
-*  Filename: task2-main.py
+*  MODULE: Task1C
+*  Filename: getCellVal.py
 *  Version: 1.0.0  
 *  Date: October 13, 2016
 *  
