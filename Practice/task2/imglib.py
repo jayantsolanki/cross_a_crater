@@ -100,15 +100,15 @@ def solve(start,finish,img,Grid_map): #no heuristics used
     
     heapq.heappush(heap, (0, start))
     if(len(heap)==0):#added today at 14 sept, 2016
-            print 'No path to follow'
-            return 0,0
+            # print 'No path to follow'
+            return "0",[],img
     while True:
         if(len(heap)==0):#added today at 14 sept, 2016
-            print 'No Path'
-            return 0,0
+            # print 'No Path found'
+            return "0",[],img
         f, current = heapq.heappop(heap) ##taking current node from heap
-        count=count-1
-        print count
+        # count=count-1
+        # print count
         # if str(strcurrent[1:2]) == finish and grid_map[int(strcurrent[-2:-1])-1][int(strcurrent[1:2])-1]==1:
         if finish==current:
             finish=current
@@ -118,12 +118,12 @@ def solve(start,finish,img,Grid_map): #no heuristics used
             name=name+str(i)
             route=build_path(start, finish, link)
             ####Drawing path , just for pictorial representation######
-            for i in range(1,len(route)):
-                cv2.line(img,(route[i-1].y*n+(n/2),route[i-1].x*m+(m/2)),(route[i].y*n+(n/2),route[i].x*m+(m/2)),(255,100,0), 3)
+            # for i in range(1,len(route)):
+            #     cv2.line(img,(route[i-1].y*n+(n/2),route[i-1].x*m+(m/2)),(route[i].y*n+(n/2),route[i].x*m+(m/2)),(255,100,0), 3)
             # cv2.imshow('name',img)
             # cv2.imwrite('output.jpg',img)
             ############################
-            return g[current], route[1:len(route)],img
+            return g[current], route[0:len(route)],img
             
         
         moves = current.get_moves()

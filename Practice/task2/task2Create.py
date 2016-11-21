@@ -117,7 +117,7 @@ for im in range(1,11):
 
 	#cv2.imshow("Grid map",img)
 	imgName="task2_img_"+str(im)+".jpg"
-	cv2.imwrite(os.path.join("task2sets",imgName),img)
+	# cv2.imwrite(os.path.join("task2sets",imgName),img)
 #generating templates for digits and signs
 for dig in range(0,2):
 	newDig=np.zeros((m,n,3), np.uint8) #blank image of 600x600
@@ -125,16 +125,16 @@ for dig in range(0,2):
 	if(dig<=9):
 		cv2.putText(newDig, str(dig), (m/2+2-m/4, n/2+n/4),cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 0), 2)
 		digitName=str(dig)+".jpg"
-		cv2.imwrite(os.path.join("digits",digitName),newDig)
+		# cv2.imwrite(os.path.join("digits",digitName),newDig)
 	elif(dig==10):
 		digitName="plus.jpg"
 		cv2.rectangle(newDig, (m/2, n/4), (m/2, n-n/4),(0,0,0),4)#plus sign
 		cv2.rectangle(newDig, (m/4, n/2), (m-m/4, n/2),(0,0,0),4)#plus sign
-		cv2.imwrite(os.path.join("digits",digitName),newDig)
+		# cv2.imwrite(os.path.join("digits",digitName),newDig)
 	else:
 		digitName="minus.jpg"
 		cv2.rectangle(newDig, (m/4, n/2), (m-m/4, n/2),(0,0,0),4)#minus sign
-		cv2.imwrite(os.path.join("digits",digitName),newDig)
+		# cv2.imwrite(os.path.join("digits",digitName),newDig)
 
 
 
