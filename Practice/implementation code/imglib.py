@@ -3,6 +3,8 @@ import cv2
 import heapq
 grid_line_x = 24
 grid_line_y = 13
+# grid_line_x = 24
+# grid_line_y = 9
 # m=480/(grid_line_x-1)
 # n=540/(grid_line_y-1)
 grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
@@ -277,7 +279,7 @@ class GridPoint(object):
 
     def __hash__(self): #returning hash value of the GridPoint object
         return hash((self.x, self.y))
-
+  
     def __repr__(self):                         #returns values stored in current object, values are x and y coordinates
         return "(%d,%d)" % (self.y+1, self.x+1)
 
@@ -287,10 +289,10 @@ class GridPoint(object):
     def get_moves(self): ##taking current node coordinates to find neighbours of it
         
         
-        if self.x>=0 and self.x<=len(grid_map)-1 and self.y>=0 and self.y<=len(grid_map)-1:
-            if self.x + 1<len(grid_map):
+        if self.x>=0 and self.x<grid_line_x-1 and self.y>=0 and self.y<grid_line_y-1:
+            if self.x + 1<grid_line_x-1:
                 yield GridPoint(self.x + 1, self.y)
-            if self.y + 1<len(grid_map):  
+            if self.y + 1<grid_line_y-1:  
                 yield GridPoint(self.x, self.y + 1)
             if self.x - 1>=-1:
                 yield GridPoint(self.x - 1, self.y)
@@ -298,13 +300,13 @@ class GridPoint(object):
                 yield GridPoint(self.x, self.y - 1)
                 #############################
               
-            if self.x + 1<len(grid_map) and self.y + 1<len(grid_map):
+            if self.x + 1<grid_line_x-1 and self.y + 1<grid_line_y-1:
                 yield GridPoint(self.x + 1, self.y+1)
-            if self.y + 1<len(grid_map) and  self.x - 1>-1:  
+            if self.y + 1<grid_line_y-1 and  self.x - 1>-1:  
                 yield GridPoint(self.x-1, self.y + 1)    
             if self.x - 1>-1 and self.y - 1>-1:
                 yield GridPoint(self.x - 1, self.y-1)
-            if self.y - 1>-1 and self.x + 1<len(grid_map):
+            if self.y - 1>-1 and self.x + 1<grid_line_x-1:
                 yield GridPoint(self.x+1, self.y - 1)
              
         

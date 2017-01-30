@@ -1,9 +1,11 @@
 import math
 import serial
-#ser=serial.Serial(4) #COM4, for windows
-ser=serial.Serial('/dev/ttyUSB3') #COM4
+ser=serial.Serial(4) #COM4, for windows
+#ser=serial.Serial('/dev/ttyUSB3') #COM4
 grid_line_x = 24
 grid_line_y = 13
+# grid_line_x = 24
+# grid_line_y = 9
 ##########################
 # returning grid coordinate from pixels coordinates
 #

@@ -248,7 +248,7 @@ void pick_up_cone()
 	servo_1(130);
 	_delay_ms(600);
 	
-	servo_2(140);
+	servo_2(145);
 	_delay_ms(600);
 	servo_1(90);
 	_delay_ms(300);
@@ -709,6 +709,10 @@ SIGNAL(SIG_USART0_RECV) 		// ISR for receive complete interrupt
 		if(data == 0x47 && flag==0) //ASCII value superfast
 		{
 			velocity(255,255);
+		}
+		if(data == 0x73 && flag==0) //ASCII value superslow, s
+		{
+			velocity(120,120);
 		}
 		
 

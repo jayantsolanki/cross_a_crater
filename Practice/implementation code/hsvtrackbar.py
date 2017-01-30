@@ -5,7 +5,7 @@ def nothing(x):
     pass
 
 # Create a black image, a window
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 # img=cv2.imread("output_image.jpg")
 # rows,cols,l = img.shape
 # M = cv2.getRotationMatrix2D((cols/2,rows/2),90,1)

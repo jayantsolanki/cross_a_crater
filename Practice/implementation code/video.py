@@ -42,7 +42,7 @@ def get_perspective_image(frame):
 
 
 
-cap = cv2.VideoCapture(4)
+cap = cv2.VideoCapture(1)
 ret, img_src = cap.read()
 cv2.imwrite("output_image.jpg", img_src)
 # img_src=get_perspective_image(img_src)

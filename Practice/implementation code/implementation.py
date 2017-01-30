@@ -8,6 +8,8 @@ from time import sleep
 import motion
 from imglib import *
 from motion import *
+# grid_line_x = 24
+# grid_line_y = 9
 grid_line_x = 24
 grid_line_y = 13
 grid_map = [ [ 0 for i in range(grid_line_y-1) ] for j in range(grid_line_x-1) ]
@@ -22,7 +24,7 @@ B2y=0
 ##################
 
 #########################################
-cap = cv2.VideoCapture(4)
+cap = cv2.VideoCapture(1)
 jay=0
 while(True):
     jay=jay+1
@@ -163,7 +165,7 @@ def execute(route_length,route_path,Aa,Bb):
                             # cv2.imshow('ori',img)
                             if len(bcontours)>=2: 
                                 # continue  
-                                M = cv2.moments(bcontours[0])
+                                M = cv2.moments(bcontours[0])#big marker
                                 B1x = int(M['m10']/M['m00'])
                                 B1y = int(M['m01']/M['m00'])
                                 # print cx3,cy3
@@ -196,19 +198,19 @@ def execute(route_length,route_path,Aa,Bb):
                             theta=math.atan((m1-m2)/(1+m1*m2))
                             # print theta
                             if d2>d1:
-                                 ser.write("5")
+                                 ser.write("")
                                  if theta<20:
                                        ser.write("4")  #right turn
                                  else:
                                        ser.write("6")   #left turn
-                            elif (theta<-0.009 or theta>0.009):
+                            elif (theta<-0.050 or theta>0.050):
                                 #com=1
 
-                                 if theta<-0.009:
-                                       ser.write("S")  #speed slow
+                                 if theta<-0.050:
+                                       ser.write("s")  #speed slow
                                        ser.write("6")  #right turn
                                  else:
-                                       ser.write("S")  #speed slow
+                                       ser.write("s")  #speed slow
                                        ser.write("4")   #left turn
                                 #com = raw_input()
                                 
@@ -278,23 +280,23 @@ frame=grid_draw(frame,grid_line_x,grid_line_y)
 # length,route=solve(start,stop,frame)
 # execute(length,route)#starts navigation
 # ######################
-start=GridPoint(14,2)#Dispatch point
-stop=GridPoint(17,2)#destination hole
+start=GridPoint(16,2)#Dispatch point
+stop=GridPoint(15,2)#destination hole
 length,route=solve(start,stop,frame)
 while(1):
   z=ser.read()
   if z=='I':
     break
-execute(length,route,12,2)#starts navigation
+execute(length,route,12,2)#starts navigationb, 12, 2 is the coordinate of the holes
 ser.write("D")#drop the mic
-start=GridPoint(17,2)#return
-stop=GridPoint(14,2)
-length,route=solve(start,stop,frame)
-execute(length,route,0,0)
+# start=GridPoint(14,2)#return
+# stop=GridPoint(15,2)
+# length,route=solve(start,stop,frame)
+# execute(length,route,0,0)
 ser.write("A")#handling the control back to the bot
-########
+# ########
 start=GridPoint(14,2)#Dispatch point
-stop=GridPoint(10,2)#destination hole
+stop=GridPoint(9,3)#destination hole
 length,route=solve(start,stop,frame)
 while(1):
   z=ser.read()
@@ -302,7 +304,7 @@ while(1):
     break
 execute(length,route,6,3)#starts navigation
 ser.write("D")#drop the mic
-start=GridPoint(10,2)#return
+start=GridPoint(9,3)#return
 stop=GridPoint(14,2)
 length,route=solve(start,stop,frame)
 execute(length,route,0,0)
@@ -354,5 +356,5 @@ execute(length,route,0,0)
 ser.write("A")#handling the control back to the bot
 # execute(length,route)
 
-#cv2.imshow("res",img)
+cv2.imshow("res",frame)
 cv2.waitKey()
