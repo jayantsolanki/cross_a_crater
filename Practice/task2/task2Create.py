@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import random
 import os
-grid_line_x = 7
-grid_line_y = 7
+grid_line_x = 15
+grid_line_y = 15
 m=0
 n=0
 def grid_draw(img,m,n): ##filename is image filename with full file path, n is grid of n lines
@@ -97,44 +97,44 @@ def drawMinus(X,Y,a,b):
 #cv2.putText(img, str(9), (150-m/4, 150+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 0), 4)
 i=0
 j=0
-for im in range(1,21):
-	newIm=np.zeros((600,600,3), np.uint8) #blank image of 600x600
+for im in range(1,11):
+	newIm=np.zeros((700,700,3), np.uint8) #blank image of 600x600
 	newIm[:,:]=(255,255,255)
 	img=grid_draw(newIm,grid_line_x,grid_line_y) ##10,14 perfect for path deduction
 	h,k,l=img.shape
 	m=h/(grid_line_x-1)
 	n=k/(grid_line_y-1)
-	for i in range(0,6):
-		for j in range(0,5):
+	for i in range(0,14):
+		for j in range(0,14):
 			x,y=gridtopixel(j,i, m,n)
-			if j%2==0:
-				cv2.putText(img, str(random.randrange(0,10)), (x-m/4, y+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 0), 4)
-			else:
-				if(random.randrange(1,10)%2==0):
-					drawMinus(x,y,m,n)
-				else:
-					drawPlus(x,y,m,n)
+			# if j%2==0:
+			cv2.putText(img, str(random.randrange(0,2)), (x+2-m/4, y+n/4),cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 0), 2)
+			# else:
+				# if(random.randrange(0,2)%2==0):
+					# drawMinus(x,y,m,n)
+				# else:
+					# drawPlus(x,y,m,n)
 
 	#cv2.imshow("Grid map",img)
-	imgName="task1_img_"+str(im)+".jpg"
-	cv2.imwrite(os.path.join("task1sets",imgName),img)
+	imgName="task2_img_"+str(im)+".jpg"
+	# cv2.imwrite(os.path.join("task2sets",imgName),img)
 #generating templates for digits and signs
-for dig in range(0,12):
+for dig in range(0,2):
 	newDig=np.zeros((m,n,3), np.uint8) #blank image of 600x600
 	newDig[:,:]=(255,255,255)
 	if(dig<=9):
-		cv2.putText(newDig, str(dig), (m/2-m/4, n/2+n/4),cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 0), 4)
+		cv2.putText(newDig, str(dig), (m/2+2-m/4, n/2+n/4),cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 0), 2)
 		digitName=str(dig)+".jpg"
-		cv2.imwrite(os.path.join("digits",digitName),newDig)
+		# cv2.imwrite(os.path.join("digits",digitName),newDig)
 	elif(dig==10):
 		digitName="plus.jpg"
 		cv2.rectangle(newDig, (m/2, n/4), (m/2, n-n/4),(0,0,0),4)#plus sign
 		cv2.rectangle(newDig, (m/4, n/2), (m-m/4, n/2),(0,0,0),4)#plus sign
-		cv2.imwrite(os.path.join("digits",digitName),newDig)
+		# cv2.imwrite(os.path.join("digits",digitName),newDig)
 	else:
 		digitName="minus.jpg"
 		cv2.rectangle(newDig, (m/4, n/2), (m-m/4, n/2),(0,0,0),4)#minus sign
-		cv2.imwrite(os.path.join("digits",digitName),newDig)
+		# cv2.imwrite(os.path.join("digits",digitName),newDig)
 
 
 
