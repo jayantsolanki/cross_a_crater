@@ -106,12 +106,13 @@ def imgclip(frame):
         # A,B,C,D
         # pts1 = numpy.float32([[x1,y1],[x2,y2],[x3,y3],[x4,y4]]) 
         # pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
-        # pts1 = numpy.float32([[a1,b1],[a2,b2],[a3,b3],[a4,b4]]) 
-        # pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
-        pts1 = numpy.float32([[a3,b3],[a1,b1],[a4,b4],[a2,b2]]) 
+        pts1 = numpy.float32([[a1,b1],[a2,b2],[a3,b3],[a4,b4]]) 
         pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
+        # pts1 = numpy.float32([[a3,b3],[a1,b1],[a4,b4],[a2,b2]]) 
+        # pts2 = numpy.float32([[0,0],[0,480],[320,0],[320,480]])
         persM = cv2.getPerspectiveTransform(pts1,pts2)
         img = cv2.warpPerspective(frame,persM,(320,480))
+        # cv2.imwrite('config',img)
         return img
         ###clipping ends
 ############

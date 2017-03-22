@@ -1,6 +1,6 @@
 import math
 import serial
-ser=serial.Serial(4) #COM4, for windows
+# ser=serial.Serial(4) #COM4, for windows
 #ser=serial.Serial('/dev/ttyUSB3') #COM4
 grid_line_x = 24
 grid_line_y = 13

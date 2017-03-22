@@ -43,6 +43,7 @@ m=480/(grid_line_x-1)
 n=320/(grid_line_y-1)
 print m,n,h,k
 cv2.imshow("framee",frame)
+cv2.imwrite("framee.jpg",frame)
 #################
 def execute(route_length,route_path,Aa,Bb):
         stepper=0 
@@ -279,35 +280,35 @@ frame=grid_draw(frame,grid_line_x,grid_line_y)
 # start=GridPoint(15,2)#B point
 # length,route=solve(start,stop,frame)
 # execute(length,route)#starts navigation
-# ######################
-start=GridPoint(16,2)#Dispatch point
-stop=GridPoint(15,2)#destination hole
-length,route=solve(start,stop,frame)
-while(1):
-  z=ser.read()
-  if z=='I':
-    break
-execute(length,route,12,2)#starts navigationb, 12, 2 is the coordinate of the holes
-ser.write("D")#drop the mic
-# start=GridPoint(14,2)#return
-# stop=GridPoint(15,2)
+# # ######################
+# start=GridPoint(16,2)#Dispatch point
+# stop=GridPoint(15,2)#destination hole
+# length,route=solve(start,stop,frame)
+# while(1):
+#   z=ser.read()
+#   if z=='I':
+#     break
+# execute(length,route,12,2)#starts navigationb, 12, 2 is the coordinate of the holes
+# ser.write("D")#drop the mic
+# # start=GridPoint(14,2)#return
+# # stop=GridPoint(15,2)
+# # length,route=solve(start,stop,frame)
+# # execute(length,route,0,0)
+# ser.write("A")#handling the control back to the bot
+# # ########
+# start=GridPoint(14,2)#Dispatch point
+# stop=GridPoint(9,3)#destination hole
+# length,route=solve(start,stop,frame)
+# while(1):
+#   z=ser.read()
+#   if z=='I':
+#     break
+# execute(length,route,6,3)#starts navigation
+# ser.write("D")#drop the mic
+# start=GridPoint(9,3)#return
+# stop=GridPoint(14,2)
 # length,route=solve(start,stop,frame)
 # execute(length,route,0,0)
-ser.write("A")#handling the control back to the bot
-# ########
-start=GridPoint(14,2)#Dispatch point
-stop=GridPoint(9,3)#destination hole
-length,route=solve(start,stop,frame)
-while(1):
-  z=ser.read()
-  if z=='I':
-    break
-execute(length,route,6,3)#starts navigation
-ser.write("D")#drop the mic
-start=GridPoint(9,3)#return
-stop=GridPoint(14,2)
-length,route=solve(start,stop,frame)
-execute(length,route,0,0)
 # ################
 # start=GridPoint(10,2)#base point
 # stop=GridPoint(15,9)#C point
@@ -353,7 +354,7 @@ execute(length,route,0,0)
 # execute(length,route)#starts navigation
 # ser.write("7");
 
-ser.write("A")#handling the control back to the bot
+# ser.write("A")#handling the control back to the bot
 # execute(length,route)
 
 cv2.imshow("res",frame)
