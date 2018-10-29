@@ -8,7 +8,7 @@ navigation, obstacle avoidance, number detection and cavities fillings by proces
 
 ## Folder Tree
 ***
-* [**Practice**](https://github.com/jayantsolanki/cross_a_crater/tree/master/pyML) contains code for the navigation, and several minor tasks and helper files
+* [**Practice**](https://github.com/jayantsolanki/cross_a_crater/tree/master/Practice) contains code for the navigation, and several minor tasks and helper files
 * [**pyML**](https://github.com/jayantsolanki/cross_a_crater/tree/master/pyML)  contains code used for checking the feasibility of using ML in detecting digits
 * [**xbee**](https://github.com/jayantsolanki/cross_a_crater/tree/master/xbee) contains code for the Robot used in line following and actuator controls
 
